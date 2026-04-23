@@ -1,0 +1,392 @@
+/* ===== BOOK DETAIL PAGE ===== */
+.book-detail-page {
+  background-color: #fafaf7;
+  min-height: 100vh;
+  padding: 40px 2rem;
+}
+
+.detail-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #c9a84c;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 28px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+/* Top: Cover + Info */
+.detail-top {
+  display: flex;
+  gap: 50px;
+  margin-bottom: 60px;
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 40px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e8e0d0;
+}
+
+/* Cover */
+.detail-cover {
+  width: 260px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.detail-cover img {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+}
+
+.detail-cover-placeholder {
+  width: 260px;
+  height: 360px;
+  background: linear-gradient(135deg, #e8d5b7, #f5efe6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+}
+
+/* Info */
+.detail-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-genre {
+  display: inline-block;
+  background-color: #f0ebe0;
+  color: #7a6340;
+  font-size: 0.8rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.detail-title {
+  font-family: "Georgia", serif;
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.detail-author {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.detail-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-rating .star {
+  font-size: 1.3rem;
+  color: #ddd;
+}
+
+.detail-rating .star.filled {
+  color: #f0a500;
+}
+
+.rating-text {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.detail-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c9a84c;
+  margin: 0;
+}
+
+.detail-stock {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #444;
+}
+
+.detail-description {
+  color: #555;
+  line-height: 1.7;
+  font-size: 0.96rem;
+  margin: 0;
+  border-top: 1px solid #e8e0d0;
+  padding-top: 14px;
+}
+
+/* Add to Cart */
+.detail-cart-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #d4c4a0;
+  border-radius: 8px;
+  padding: 4px 12px;
+  background-color: #f9f5ee;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #7a6340;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.qty-btn:hover {
+  color: #c9a84c;
+}
+
+.qty-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  min-width: 24px;
+  text-align: center;
+}
+
+.add-to-cart-btn {
+  padding: 12px 28px;
+  background-color: #c9a84c;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  background-color: #b8943f;
+}
+
+.add-to-cart-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Meta info */
+.detail-meta {
+  border-top: 1px solid #e8e0d0;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-meta p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.detail-meta p span {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* REVIEWS SECTION */
+.reviews-section {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 36px;
+  border: 1px solid #e8e0d0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.reviews-title {
+  font-family: "Georgia", serif;
+  font-size: 1.5rem;
+  color: #1a1a2e;
+  margin: 0 0 24px;
+  border-bottom: 1px solid #e8e0d0;
+  padding-bottom: 16px;
+}
+
+/* Review Form */
+.review-form-box {
+  background-color: #fafaf7;
+  border: 1px solid #e8e0d0;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.review-form-box h3 {
+  font-family: "Georgia", serif;
+  font-size: 1.1rem;
+  color: #1a1a2e;
+  margin: 0 0 16px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rating-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rating-selector label {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.star-selector {
+  display: flex;
+  gap: 4px;
+}
+
+.sel-star {
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.15s;
+}
+
+.sel-star.filled {
+  color: #f0a500;
+}
+
+.sel-star:hover {
+  color: #f0a500;
+}
+
+.review-textarea {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  border: 1px solid #d4c4a0;
+  border-radius: 8px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  color: #1a1a2e;
+  transition: border-color 0.2s;
+}
+
+.review-textarea:focus {
+  border-color: #c9a84c;
+}
+
+.submit-review-btn {
+  align-self: flex-start;
+  padding: 10px 26px;
+  background-color: #1a1a2e;
+  color: #c9a84c;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-review-btn:hover:not(:disabled) {
+  background-color: #0f3460;
+}
+
+.submit-review-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Reviews List */
+.no-reviews {
+  color: #888;
+  text-align: center;
+  padding: 30px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-card {
+  border: 1px solid #e8e0d0;
+  border-radius: 8px;
+  padding: 18px;
+  background-color: #fafaf7;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.review-stars .star {
+  font-size: 1rem;
+  color: #ddd;
+}
+
+.review-stars .star.filled {
+  color: #f0a500;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.review-comment {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Loading */
+.detail-loading {
+  text-align: center;
+  padding: 100px 20px;
+  color: #888;
+  font-size: 1.2rem;
+}
+
+/* ── Reviewer name in review cards ── */
+.review-author {
+  font-size: 0.85rem; font-weight: 600; color: #555;
+  margin: 0 0.5rem;
+}

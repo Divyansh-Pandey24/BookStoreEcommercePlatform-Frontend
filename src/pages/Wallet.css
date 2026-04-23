@@ -1,0 +1,207 @@
+/* ===== PAGE ===== */
+.wallet-page {
+  min-height: 100vh;
+  background: #0f172a;
+  display: flex;
+  justify-content: center;
+  padding: 30px 15px;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== CONTAINER ===== */
+.wallet-container {
+  width: 100%;
+  max-width: 900px;
+}
+
+/* ===== TITLE ===== */
+.wallet-title {
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* ===== BALANCE CARD ===== */
+.balance-card {
+  background: linear-gradient(135deg, #1e293b, #020617);
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.balance-label {
+  color: #94a3b8;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.balance-amount {
+  font-size: 36px;
+  color: #22c55e;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.balance-sub {
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* ===== ADD MONEY CARD ===== */
+.add-money-card {
+  background: #020617;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.add-money-title {
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+/* ===== QUICK BUTTONS ===== */
+.quick-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.quick-amt-btn {
+  padding: 10px 16px;
+  background: #1e293b;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.quick-amt-btn:hover {
+  background: #334155;
+}
+
+/* ===== INPUT ===== */
+.add-money-input-row {
+  margin-bottom: 15px;
+}
+
+.add-money-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: #1e293b;
+  color: #fff;
+  font-size: 14px;
+}
+
+/* ===== BUTTON ===== */
+.add-money-btn {
+  width: 100%;
+  padding: 12px;
+  background: #c9a84c;
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-money-btn:hover {
+  background: #e5c76b;
+}
+
+.add-money-btn:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+}
+
+/* ===== NOTE ===== */
+.razorpay-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ===== TRANSACTIONS ===== */
+.transactions-card {
+  background: #020617;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.transactions-title {
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+/* ===== EMPTY ===== */
+.no-transactions {
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ===== LIST ===== */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== ITEM ===== */
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e293b;
+  padding: 12px 15px;
+  border-radius: 10px;
+}
+
+/* ===== INFO ===== */
+.txn-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.txn-type {
+  color: #fff;
+  font-size: 14px;
+}
+
+.txn-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ===== AMOUNT ===== */
+.txn-amount {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.txn-amount.credit {
+  color: #22c55e;
+}
+
+.txn-amount.debit {
+  color: #ef4444;
+}
+
+/* ===== LOADING ===== */
+.wallet-loading {
+  color: #fff;
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+}

@@ -1,0 +1,4 @@
+/* Register page specific overrides */
+.register-card {
+  max-width: 480px;
+}

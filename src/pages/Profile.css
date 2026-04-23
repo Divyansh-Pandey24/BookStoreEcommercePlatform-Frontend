@@ -1,0 +1,240 @@
+/* ===== PROFILE PAGE ===== */
+.profile-page {
+  background-color: #fafaf7;
+  min-height: 100vh;
+  padding: 40px 2rem;
+}
+
+.profile-container {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profile-title {
+  font-family: "Georgia", serif;
+  font-size: 2rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+/* Profile Card */
+.profile-card {
+  background-color: #ffffff;
+  border: 1px solid #e8e0d0;
+  border-radius: 14px;
+  padding: 36px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+/* Avatar Circle */
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1a2e, #0f3460);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 3px solid #c9a84c;
+}
+
+.avatar-letter {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #c9a84c;
+  font-family: "Georgia", serif;
+}
+
+/* Info Rows */
+.profile-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0ebe0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  font-size: 1rem;
+  color: #1a1a2e;
+  font-weight: 500;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}
+
+.role-badge.admin {
+  background-color: #1a1a2e;
+  color: #c9a84c;
+}
+
+.role-badge.customer {
+  background-color: #f0ebe0;
+  color: #7a6340;
+}
+
+/* Section Cards */
+.profile-section-card {
+  background-color: #ffffff;
+  border: 1px solid #e8e0d0;
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.section-card-title {
+  font-family: "Georgia", serif;
+  font-size: 1.2rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.toggle-reset-btn {
+  padding: 8px 18px;
+  background-color: #f0ebe0;
+  color: #7a6340;
+  border: 1px solid #d4c4a0;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggle-reset-btn:hover {
+  background-color: #e0d8c8;
+}
+
+/* Reset Form */
+.reset-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0ebe0;
+}
+
+.reset-info {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0 0 14px;
+}
+
+.reset-input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.reset-email-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #d4c4a0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  color: #1a1a2e;
+  transition: border-color 0.2s;
+}
+
+.reset-email-input:focus {
+  border-color: #c9a84c;
+}
+
+.send-reset-btn {
+  padding: 10px 22px;
+  background-color: #1a1a2e;
+  color: #c9a84c;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.send-reset-btn:hover {
+  background-color: #0f3460;
+}
+
+.reset-success {
+  color: #28a745;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Quick Links */
+.quick-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.quick-link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background-color: #fafaf7;
+  border: 1px solid #e8e0d0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1a1a2e;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.quick-link-item:hover {
+  background-color: #f0ebe0;
+  border-color: #c9a84c;
+}
+
+.quick-link-icon {
+  font-size: 1.3rem;
+}
+
+.profile-loading {
+  text-align: center;
+  padding: 100px 20px;
+  color: #888;
+  font-size: 1.1rem;
+}

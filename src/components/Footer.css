@@ -1,0 +1,33 @@
+/* ===== FOOTER ===== */
+.footer {
+  background-color: #1a1a2e;
+  border-top: 2px solid #c9a84c;
+  padding: 24px 2rem;
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font-family: "Georgia", serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #c9a84c;
+}
+
+.footer-tagline {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+}
+
+.footer-copy {
+  color: #666;
+  font-size: 0.82rem;
+}
