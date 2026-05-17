@@ -1,0 +1,144 @@
+name: BookNest CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  IMAGE_REPO_PREFIX: booknest
+
+jobs:
+  build-and-push:
+    name: Build & Push to AWS ECR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set up Node.js (for frontend dependency validation)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: 'final_frontend/package-lock.json'
+
+      - name: Build Backend Microservices with Maven
+        run: |
+          cd Backend
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Backend Images in Loop
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          SERVICES=(
+            "api-gateway:Backend/api-gateway"
+            "eureka-server:Backend/eureka-server"
+            "auth-service:Backend/auth-service"
+            "book-service:Backend/book-service-1"
+            "cart-service:Backend/cart-service"
+            "order-service:Backend/order-service"
+            "wallet-service:Backend/wallet-service"
+            "notification-service:Backend/notification-service"
+            "review-service:Backend/review-service"
+            "admin-server:Backend/admin-server"
+            "ebook-service:Backend/ebook-service"
+          )
+          
+          for SERVICE_INFO in "${SERVICES[@]}"; do
+            NAME=$(echo $SERVICE_INFO | cut -d':' -f1)
+            PATH_DIR=$(echo $SERVICE_INFO | cut -d':' -f2)
+            REPO_NAME="${{ env.IMAGE_REPO_PREFIX }}-${NAME}"
+            
+            echo "--------------------------------------------------------"
+            echo "🚀 Building and Pushing ECR Image: ${REPO_NAME} from ${PATH_DIR}..."
+            echo "--------------------------------------------------------"
+            
+            # Build and tag
+            docker build -t $ECR_REGISTRY/$REPO_NAME:${{ github.sha }} -t $ECR_REGISTRY/$REPO_NAME:latest $PATH_DIR
+            
+            # Push both SHA tag and latest tag
+            docker push $ECR_REGISTRY/$REPO_NAME:${{ github.sha }}
+            docker push $ECR_REGISTRY/$REPO_NAME:latest
+          done
+
+      - name: Build, Tag, and Push Frontend Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          REPO_NAME="${{ env.IMAGE_REPO_PREFIX }}-frontend"
+          echo "--------------------------------------------------------"
+          echo "🚀 Building and Pushing ECR Image: ${REPO_NAME}..."
+          echo "--------------------------------------------------------"
+          
+          docker build -t $ECR_REGISTRY/$REPO_NAME:${{ github.sha }} -t $ECR_REGISTRY/$REPO_NAME:latest final_frontend
+          docker push $ECR_REGISTRY/$REPO_NAME:${{ github.sha }}
+          docker push $ECR_REGISTRY/$REPO_NAME:latest
+
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy Deployment Configs to EC2 via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "Backend/docker-compose.prod.yml,Backend/init-mysql.sql"
+          target: "~/booknest-app"
+          strip_components: 1
+
+      - name: Deploy and Restart via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/booknest-app
+            
+            # Configure AWS credentials on EC2 to permit pulling ECR images
+            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            export AWS_DEFAULT_REGION=${{ env.AWS_REGION }}
+            
+            # Authenticate Docker on the EC2 host with ECR
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+            
+            # Pull fresh production images and run them
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            
+            # Clear old untagged/dangling images to preserve host disk space
+            docker image prune -f
+            echo "🚀 Deployment Completed Successfully!"

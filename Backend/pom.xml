@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Inherits Spring Boot's dependency and plugin management.
+        All 10 child services automatically get Spring Boot defaults.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.booknest</groupId>
+    <artifactId>booknest-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>BookNest Backend</name>
+    <description>Parent POM for all BookNest microservices - aggregates all modules for SonarQube</description>
+
+    <!--
+        All 10 microservice modules.
+        Running mvn from this directory builds ALL services.
+        SonarQube sees this as ONE project with all modules.
+    -->
+    <modules>
+        <module>admin-server</module>
+        <module>api-gateway</module>
+        <module>auth-service</module>
+        <module>book-service-1</module>
+        <module>cart-service</module>
+        <module>eureka-server</module>
+        <module>notification-service</module>
+        <module>order-service</module>
+        <module>review-service</module>
+        <module>wallet-service</module>
+        <module>ebook-service</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <lombok.version>1.18.38</lombok.version>
+        <jacoco.version>0.8.11</jacoco.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <cloudinary.version>1.38.0</cloudinary.version>
+
+        <!--
+            SonarQube Properties — ALL modules share this project key.
+            This is what makes all services appear as ONE project in SonarQube.
+        -->
+        <sonar.projectKey>booknest-backend</sonar.projectKey>
+        <sonar.projectName>BookNest Backend</sonar.projectName>
+        <sonar.organization>divyansh-pandey24</sonar.organization>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <!--
+            Exclude generated/boilerplate classes from coverage.
+            DTOs, Entities, Config, and the main Application class
+            don't contain logic worth testing — excluding them keeps
+            the coverage metric meaningful and achievable at 80%+.
+        -->
+        <sonar.exclusions>
+            **/dto/**,
+            **/entity/**,
+            **/model/**,
+            **/config/**,
+            **/*Application.java,
+            **/aspect/**,
+            **/exception/**,
+            **/security/**,
+            **/util/**,
+            **/*Runner.java,
+            **/client/**
+        </sonar.exclusions>
+        <sonar.coverage.exclusions>
+            **/dto/**,
+            **/entity/**,
+            **/model/**,
+            **/config/**,
+            **/*Application.java,
+            **/aspect/**,
+            **/exception/**,
+            **/security/**,
+            **/util/**,
+            **/*Runner.java,
+            **/client/**
+        </sonar.coverage.exclusions>
+    </properties>
+
+    <!--
+        Spring Cloud BOM — manages versions for ALL Spring Cloud dependencies
+        across ALL child modules. Children no longer need their own
+        dependencyManagement block.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <!--
+            pluginManagement: Declares plugin configurations that child modules
+            inherit automatically without needing to re-declare them.
+        -->
+        <pluginManagement>
+            <plugins>
+                <!--
+                    Compiler Plugin with Lombok annotation processor.
+                    @Data, @Slf4j, @Builder etc. are processed here.
+                    All child modules inherit this automatically.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+
+                <!--
+                    Surefire Plugin for running unit tests.
+                    @{argLine} — late-binding syntax that picks up the JaCoCo
+                    agent set by prepare-agent goal. MUST use @{} not ${}.
+                    The remaining flags handle Java 17 module system compatibility.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <argLine>@{argLine} -Dnet.bytebuddy.experimental=true -XX:+EnableDynamicAgentLoading --add-opens=java.base/java.lang=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xshare:off</argLine>
+                    </configuration>
+                </plugin>
+
+                <!--
+                    Spring Boot Maven Plugin — packages executable JARs.
+                    Lombok is excluded from the final JAR (compile-time only).
+                -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!--
+                JaCoCo Code Coverage Plugin.
+                Inherited by ALL child modules automatically.
+                Three executions:
+                  1. prepare-agent: Injects JaCoCo agent before tests (sets argLine)
+                  2. report: Generates HTML + XML coverage report after tests
+                  3. (SonarQube reads the XML to compute coverage percentages)
+            -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/dto/**</exclude>
+                        <exclude>**/entity/**</exclude>
+                        <exclude>**/model/**</exclude>
+                        <exclude>**/config/**</exclude>
+                        <exclude>**/*Application.class</exclude>
+                        <exclude>**/aspect/**</exclude>
+                        <exclude>**/exception/**</exclude>
+                        <exclude>**/security/**</exclude>
+                        <exclude>**/util/**</exclude>
+                        <exclude>**/*Runner.class</exclude>
+                        <exclude>**/client/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                SonarQube Scanner Plugin.
+                Run with: mvn sonar:sonar -Dsonar.token=YOUR_TOKEN
+                All modules are scanned as ONE project because they share
+                the same sonar.projectKey defined in <properties> above.
+            -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

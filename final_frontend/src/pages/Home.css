@@ -1,0 +1,277 @@
+/* ===== HOME PAGE ===== */
+.home {
+  min-height: 100vh;
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 80px 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: 460px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle pattern overlay */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(201, 168, 76, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(201, 168, 76, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.hero-content {
+  max-width: 600px;
+  z-index: 1;
+}
+
+.hero-title {
+  font-family: "Georgia", serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0 0 16px;
+}
+
+.hero-highlight {
+  color: #c9a84c;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: #b0b8c8;
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+/* Search Bar in Hero */
+.hero-search {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  max-width: 500px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hero-search-input {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background-color: #ffffff;
+  color: #1a1a2e;
+}
+
+.hero-search-input::placeholder {
+  color: #999;
+}
+
+.hero-search-btn {
+  padding: 14px 28px;
+  background-color: #c9a84c;
+  color: #1a1a2e;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hero-search-btn:hover {
+  background-color: #b8943f;
+}
+
+.hero-browse-btn {
+  display: inline-block;
+  color: #c9a84c;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.4);
+  padding-bottom: 2px;
+  transition: border-color 0.2s;
+}
+
+.hero-browse-btn:hover {
+  border-color: #c9a84c;
+}
+
+/* Hero Decoration */
+.hero-decoration {
+  z-index: 1;
+}
+
+.book-stack {
+  display: flex;
+  gap: 16px;
+  font-size: 6rem;
+  opacity: 0.3;
+}
+
+/* SECTIONS */
+.section-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 60px 2rem;
+}
+
+.books-section {
+  background-color: #fafaf7;
+}
+
+.books-section.alt-bg {
+  background-color: #f0ebe0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-family: "Georgia", serif;
+  font-size: 1.8rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.see-all-link {
+  color: #c9a84c;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.see-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Books Grid */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+/* GENRE SECTION */
+.genre-section {
+  background-color: #ffffff;
+}
+
+.genre-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.genre-btn {
+  background-color: #f0ebe0;
+  color: #7a6340;
+  border: 1px solid #d4c4a0;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.genre-btn:hover {
+  background-color: #c9a84c;
+  color: #1a1a2e;
+  border-color: #c9a84c;
+}
+
+/* Utility */
+.loading-text,
+.empty-text {
+  text-align: center;
+  color: #888;
+  font-size: 1rem;
+  padding: 40px 0;
+}
+@media (max-width: 992px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 60px 1.5rem;
+    min-height: auto;
+    justify-content: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-title {
+    font-size: 2.4rem;
+  }
+
+  .hero-search {
+    margin: 0 auto 20px;
+  }
+
+  .section-container {
+    padding: 40px 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-search {
+    flex-direction: column;
+    background: transparent;
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .hero-search-input {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .hero-search-btn {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+}

@@ -1,0 +1,60 @@
+# ============================================================
+# 🔐 CRITICAL SECURITY (NEVER PUSH TO GITHUB)
+# ============================================================
+*.pem
+*.key
+*.ppk
+.env
+.env.*
+application-prod.properties
+secret.properties
+
+# ============================================================
+# 📦 HEAVY LOCAL INFRASTRUCTURE & ARCHIVES (DO NOT PUSH)
+# ============================================================
+elasticsearch-*/
+kafka/
+sonarqube-*/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.pdf
+
+# ============================================================
+# ☕ JAVA & MAVEN MICROSERVICES
+# ============================================================
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+.mvn/
+**/bin/
+.gradletasknamecache
+
+# ============================================================
+# ⚛️ REACT FRONTEND (NODE)
+# ============================================================
+**/node_modules/
+**/dist/
+**/build/
+.eslintcache
+.npm
+package-lock.json.log
+logs/
+*.log
+
+# ============================================================
+# 💻 IDE METADATA & SYSTEM FILES
+# ============================================================
+.idea/
+.vscode/
+.metadata/
+*.iml
+.project
+.settings/
+.classpath
+.factorypath
+.DS_Store
+Thumbs.db

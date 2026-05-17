@@ -1,0 +1,49 @@
+/* ===== GLOBAL APP STYLES ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafaf7;
+  color: #1a1a2e;
+  line-height: 1.6;
+}
+
+/* App wrapper stretches to fill viewport height */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content grows to push footer to bottom */
+.app-main {
+  flex: 1;
+}
+
+/* Remove default link underlines */
+a {
+  text-decoration: none;
+}
+
+/* Remove default button outline on click */
+button {
+  font-family: inherit;
+}
+
+/* Scrollbar styling (Chrome) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0ebe0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c9a84c;
+  border-radius: 4px;
+}
