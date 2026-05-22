@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 // Feign client for cross-service communication with the cart-service.
 // fallback = CartClientFallback.class:
-//   getCart() returns empty cart → order rejected (safe: no ghost orders).
-//   clearCart() logs warning → stale cart is acceptable after order placed.
+// getCart() returns empty cart order rejected (safe: no ghost orders).
+// clearCart() logs warning stale cart is acceptable after order placed.
 @FeignClient(name = "CART-SERVICE", fallback = CartClientFallback.class)
 public interface CartClient {
 
@@ -20,4 +20,4 @@ public interface CartClient {
     // Clear all items from a user's shopping cart
     @DeleteMapping("/cart/clear")
     void clearCart(@RequestHeader("X-User-Id") Long userId);
-}
+}

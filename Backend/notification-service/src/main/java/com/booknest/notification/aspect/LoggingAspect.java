@@ -14,9 +14,11 @@ import java.util.Arrays;
 @Slf4j
 public class LoggingAspect {
 
+    // Declares the diagnostic execution pointcut for the notification service layer.
     @Pointcut("execution(* com.booknest.notification.service.*.*(..))")
     public void serviceLayer() {}
 
+    // Intercepts service-layer calls, logging parameters, execution duration, and success/error outcomes.
     @Around("serviceLayer()")
     public Object logServiceAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();

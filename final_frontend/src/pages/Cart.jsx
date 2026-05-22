@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API, { getImageUrl } from "../utils/api";   // ← Updated import
+import API, { getImageUrl } from "../utils/api";   // Updated import
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import "./Cart.css";
@@ -121,7 +121,7 @@ function Cart() {
                         alt={item.bookTitle}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/300x400/cccccc/666666?text=No+Image";
+                          e.target.src = "https:// via.placeholder.com/300x400/cccccc/666666?text=No+Image";
                         }}
                       />
                     ) : (

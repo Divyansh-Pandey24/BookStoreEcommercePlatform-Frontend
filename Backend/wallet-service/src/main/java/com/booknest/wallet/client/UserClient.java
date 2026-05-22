@@ -7,7 +7,7 @@ import com.booknest.wallet.dto.UserProfileDto;
 
 // Feign client for auth-service.
 // fallback = UserClientFallback.class:
-//   Returns stub UserProfile — wallet still works, just shows "Unknown User".
+// Returns stub UserProfile wallet still works, just shows "Unknown User".
 @FeignClient(name = "AUTH-SERVICE", fallback = UserClientFallback.class)
 public interface UserClient {
 

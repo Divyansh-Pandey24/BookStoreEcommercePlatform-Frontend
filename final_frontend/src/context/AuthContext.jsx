@@ -1,17 +1,17 @@
 import { createContext, useContext, useState } from "react";
 
-// This context holds the logged-in user info and auth functions
-// Any component can use useAuth() to get this data
+// Context to store logged-in user information and active authentication helper functions
 const AuthContext = createContext(null);
 
+// Global provider exposing active user, login function, logout function, and isAdmin status
 export function AuthProvider({ children }) {
-  // Try to load user from localStorage on first render
+  // State container initialized with user data parsed from localStorage if it exists
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
 
-  // Called after successful login or register
+  // Save session credentials and active user profile inside localStorage and update state
   function login(userData, accessToken, refreshToken) {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
     setUser(userData);
   }
 
-  // Called when user logs out
+  // Clear all session tokens and user data from localStorage and reset user state
   function logout() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  // Check if logged-in user is an admin
+  // Compute a boolean flag indicating if the current user has administrator privileges
   const isAdmin = user?.role === "ADMIN";
 
   return (
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook - use this in any component instead of useContext(AuthContext)
+// Custom hook allowing any consumer component to easily access the AuthContext
 export function useAuth() {
   return useContext(AuthContext);
 }

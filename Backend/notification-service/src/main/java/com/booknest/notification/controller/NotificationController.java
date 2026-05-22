@@ -18,14 +18,14 @@ public class NotificationController {
 
     private final NotificationServiceImpl notificationService;
 
-    // Retrieve all notifications for a specific user ID
+    // Retrieves all notification records generated for the active user.
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getAll(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching notifications for user: {}", userId);
         return ResponseEntity.ok(notificationService.getNotifications(userId));
     }
 
-    // Get the count of unread notifications for a specific user ID
+    // Returns the count of all active notifications marked as unread.
     @GetMapping("/unread-count")
     public ResponseEntity<Map<String, Long>> getUnreadCount(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching unread count for user: {}", userId);
@@ -33,14 +33,14 @@ public class NotificationController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 
-    // Mark a specific notification as read by ID
+    // Marks a single notification record as read.
     @PatchMapping("/{notificationId}/read")
     public ResponseEntity<NotificationResponse> markAsRead(@PathVariable Long notificationId, @RequestHeader("X-User-Id") Long userId) {
         log.info("Marking notification ID: {} as read for user: {}", notificationId, userId);
         return ResponseEntity.ok(notificationService.markAsRead(notificationId, userId));
     }
 
-    // Mark all notifications for a specific user as read
+    // Marks all notifications for a specific user as read.
     @PatchMapping("/read-all")
     public ResponseEntity<Void> markAllAsRead(@RequestHeader("X-User-Id") Long userId) {
         log.info("Marking all notifications as read for user: {}", userId);
@@ -48,11 +48,11 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    // Delete a specific notification by ID
+    // Deletes a specific notification record permanently.
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Void> delete(@PathVariable Long notificationId, @RequestHeader("X-User-Id") Long userId) {
         log.info("Deleting notification ID: {} for user: {}", notificationId, userId);
         notificationService.deleteNotification(notificationId, userId);
         return ResponseEntity.noContent().build();
     }
-}
+}

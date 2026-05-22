@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * out of source code. In production, use environment variables.
  *
  * Setup:
- *   1. Sign up at https://cloudinary.com (free tier: 25GB storage)
+ *   1. Sign up at https:// cloudinary.com (free tier: 25GB storage)
  *   2. Go to Dashboard → copy cloud_name, api_key, api_secret
  *   3. Add them to book-service application.properties
  */

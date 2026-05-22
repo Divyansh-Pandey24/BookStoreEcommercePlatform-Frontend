@@ -19,15 +19,11 @@ import java.util.Arrays;
 @Slf4j
 public class LoggingAspect {
 
-    /**
-     * Pointcut that matches all methods in the service package.
-     */
+    // Declares the diagnostic execution pointcut for the authentication service layer.
     @Pointcut("execution(* com.booknest.auth.service.*.*(..))")
     public void serviceLayer() {}
 
-    /**
-     * Advice that surrounds the method execution to log details and performance.
-     */
+    // Intercepts service-layer calls, logging parameters, execution duration, and success/error outcomes.
     @Around("serviceLayer()")
     public Object logServiceAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();

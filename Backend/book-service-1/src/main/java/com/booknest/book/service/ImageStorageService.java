@@ -85,7 +85,7 @@ public class ImageStorageService {
                             "resource_type",   "image",
                             // Eagerly transform to WebP for better compression
                             "format",          "webp",
-                            // Limit dimensions — Cloudinary resizes server-side
+                            // Limit dimensions Cloudinary resizes server-side
                             "transformation",  "c_limit,w_800,h_1200,q_auto"
                     )
             );
@@ -137,7 +137,7 @@ public class ImageStorageService {
      * Deletes an existing image from Cloudinary using its public_id.
      *
      * The stored URL looks like:
-     *   https://res.cloudinary.com/{cloud}/image/upload/v123/booknest/covers/{publicId}.webp
+     *   https:// res.cloudinary.com/{cloud}/image/upload/v123/booknest/covers/{publicId}.webp
      * We extract the public_id portion (everything after /upload/v<version>/).
      *
      * @param imageUrl the full Cloudinary URL stored in the database
@@ -171,7 +171,7 @@ public class ImageStorageService {
     /**
      * Extracts the Cloudinary public_id from a full Cloudinary URL.
      * Example:
-     *   Input:  https://res.cloudinary.com/demo/image/upload/v1620000000/booknest/covers/abc123.webp
+     *   Input:  https:// res.cloudinary.com/demo/image/upload/v1620000000/booknest/covers/abc123.webp
      *   Output: booknest/covers/abc123
      */
     private String extractPublicId(String url) {

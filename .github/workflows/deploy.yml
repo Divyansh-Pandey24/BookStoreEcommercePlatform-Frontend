@@ -163,8 +163,9 @@ jobs:
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
             
             # Pull fresh production images and run them using sudo
-            sudo docker compose -f docker-compose.prod.yml pull
-            sudo docker compose -f docker-compose.prod.yml up -d
+            export ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+            sudo -E docker compose -f docker-compose.prod.yml pull
+            sudo -E docker compose -f docker-compose.prod.yml up -d
             
             # Clear old untagged/dangling images to preserve host disk space
             sudo docker image prune -f

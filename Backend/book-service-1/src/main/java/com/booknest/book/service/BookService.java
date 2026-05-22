@@ -20,17 +20,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Service handling business logic for book operations
+// This service implements the central business logic for catalog book operations in BookNest.
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BookService {
 
+    /**
+     * Repository used to perform SQL CRUD actions on relational Book entities.
+     */
     private final BookRepository bookRepository;
+
+    /**
+     * Elasticsearch repository used to perform high-speed fuzzy search lookups.
+     */
     private final BookSearchRepository bookSearchRepository;
+
+    /**
+     * Utility service to upload, persist, and delete physical book cover images.
+     */
     private final ImageStorageService imageStorageService;
 
-    // Convert Book entity to BookResponse DTO
+    // Converts a database Book entity into a BookResponse data transfer object (DTO).
     private BookResponse convertToResponse(Book book) {
         BookResponse response = new BookResponse();
         response.setBookId(book.getBookId());
@@ -52,7 +63,7 @@ public class BookService {
         return response;
     }
 
-    // Convert Book entity to Elasticsearch BookDocument
+    // Converts a database Book entity into an Elasticsearch BookDocument index model.
     private BookDocument convertToDocument(Book book) {
         BookDocument doc = new BookDocument();
         doc.setBookId(String.valueOf(book.getBookId()));
@@ -70,7 +81,7 @@ public class BookService {
         return doc;
     }
 
-    // Convert BookDocument to BookResponse DTO
+    // Converts an Elasticsearch BookDocument into a standard BookResponse DTO.
     private BookResponse convertDocToResponse(BookDocument doc) {
         BookResponse resp = new BookResponse();
         resp.setBookId(Long.parseLong(doc.getBookId()));
@@ -89,7 +100,7 @@ public class BookService {
         return resp;
     }
 
-    // Synchronize book data with Elasticsearch index
+    // Safely synchronizes a Book entity state into the Elasticsearch search index.
     private void syncToElasticsearch(Book book) {
         try {
             bookSearchRepository.save(convertToDocument(book));
@@ -99,14 +110,14 @@ public class BookService {
         }
     }
 
-    // Check if the user has administrative privileges
+    // Checks if the caller has the required ADMIN privileges.
     private void verifyAdmin(String role) {
         if (!"ADMIN".equals(role)) {
             throw new RuntimeException("Access denied. Admin privileges required.");
         }
     }
 
-    // Add a new book to the catalog
+    // Registers a new book in the catalog.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -115,9 +126,12 @@ public class BookService {
     public BookResponse addBook(BookRequest request, String role) {
         log.info("Adding new book: {}", request.getTitle());
         verifyAdmin(role);
+        
+        // Prevent duplicate ISBN entries to maintain unique catalog indexing.
         if (request.getIsbn() != null && !request.getIsbn().isBlank() && bookRepository.existsByIsbn(request.getIsbn())) {
             throw new RuntimeException("ISBN already exists: " + request.getIsbn());
         }
+        
         Book book = new Book();
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
@@ -127,18 +141,22 @@ public class BookService {
         book.setPrice(request.getPrice());
         book.setStock(request.getStock());
         book.setDescription(request.getDescription());
+        
         if (request.getPublishedDate() != null && !request.getPublishedDate().isBlank()) {
             book.setPublishedDate(LocalDate.parse(request.getPublishedDate()));
         }
         if (request.getFeatured() != null) {
             book.setFeatured(request.getFeatured());
         }
+        
         Book saved = bookRepository.save(book);
+        
+        // Push newly saved record to search index.
         syncToElasticsearch(saved);
         return convertToResponse(saved);
     }
 
-    // Update details of an existing book
+    // Updates structural information of an existing book.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -148,8 +166,10 @@ public class BookService {
     public BookResponse updateBook(Long bookId, BookRequest request, String role) {
         log.info("Updating book: {}", bookId);
         verifyAdmin(role);
+        
         Book book = bookRepository.findByBookIdAndActiveTrue(bookId)
             .orElseThrow(() -> new ResourceNotFoundException("Book not found id: " + bookId));
+            
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
         book.setGenre(request.getGenre());
@@ -158,18 +178,20 @@ public class BookService {
         book.setStock(request.getStock());
         book.setDescription(request.getDescription());
         book.setUpdatedAt(LocalDateTime.now());
+        
         if (request.getPublishedDate() != null && !request.getPublishedDate().isBlank()) {
             book.setPublishedDate(LocalDate.parse(request.getPublishedDate()));
         }
         if (request.getFeatured() != null) {
             book.setFeatured(request.getFeatured());
         }
+        
         Book updated = bookRepository.save(book);
         syncToElasticsearch(updated);
         return convertToResponse(updated);
     }
 
-    // Soft delete a book by setting its active status to false
+    // Soft-deletes a book from the catalog by marking its active flag as false.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -179,11 +201,15 @@ public class BookService {
     public void deleteBook(Long bookId, String role) {
         log.info("Deleting book: {}", bookId);
         verifyAdmin(role);
+        
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ResourceNotFoundException("Book not found id: " + bookId));
+            
         book.setActive(false);
         book.setUpdatedAt(LocalDateTime.now());
         bookRepository.save(book);
+        
+        // Remove document from Elasticsearch index so it immediately disappears from search queries.
         try {
             bookSearchRepository.deleteById(String.valueOf(bookId));
         } catch (Exception e) {
@@ -191,7 +217,7 @@ public class BookService {
         }
     }
 
-    // Update the stock quantity for a book
+    // Explicitly sets a book's physical inventory stock quantity.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -200,8 +226,10 @@ public class BookService {
     public BookResponse updateStock(Long bookId, Integer quantity, String role) {
         log.info("Updating stock for book {} to {}", bookId, quantity);
         verifyAdmin(role);
+        
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new ResourceNotFoundException("Book not found id: " + bookId));
+            
         book.setStock(quantity);
         book.setUpdatedAt(LocalDateTime.now());
         Book updated = bookRepository.save(book);
@@ -209,7 +237,7 @@ public class BookService {
         return convertToResponse(updated);
     }
 
-    // Toggle the featured status of a book
+    // Toggles whether a book is featured on the application's homepage.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -219,8 +247,10 @@ public class BookService {
     public BookResponse toggleFeatured(Long bookId, String role) {
         log.info("Toggling featured status for book: {}", bookId);
         verifyAdmin(role);
+        
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new RuntimeException("Book not found id: " + bookId));
+            
         book.setFeatured(!book.getFeatured());
         book.setUpdatedAt(LocalDateTime.now());
         Book updated = bookRepository.save(book);
@@ -228,7 +258,7 @@ public class BookService {
         return convertToResponse(updated);
     }
 
-    // Upload and update the cover image for a book
+    // Uploads and configures a cover image for a book.
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = "books:all", allEntries = true),
@@ -238,11 +268,15 @@ public class BookService {
     public BookResponse uploadCoverImage(Long bookId, MultipartFile file, String role) {
         log.info("Uploading cover image for book: {}", bookId);
         verifyAdmin(role);
+        
         Book book = bookRepository.findById(bookId)
             .orElseThrow(() -> new RuntimeException("Book not found id: " + bookId));
+            
+        // Delete old cover image if present to free disk space.
         if (book.getCoverImageUrl() != null) {
             imageStorageService.deleteImage(book.getCoverImageUrl());
         }
+        
         String imagePath = imageStorageService.saveImage(file);
         book.setCoverImageUrl(imagePath);
         book.setUpdatedAt(LocalDateTime.now());
@@ -251,7 +285,7 @@ public class BookService {
         return convertToResponse(updated);
     }
 
-    // Retrieve all active books from the catalog
+    // Retrieves all active catalog book entities.
     @Cacheable(value = "books:all")
     public List<BookResponse> getAllBooks() {
         log.info("Fetching all active books");
@@ -260,7 +294,7 @@ public class BookService {
             .collect(Collectors.toList());
     }
 
-    // Retrieve a single book by its ID
+    // Fetches a single book by database ID.
     @Cacheable(value = "books:id", key = "#bookId")
     public BookResponse getBookById(Long bookId) {
         log.info("Fetching book by ID: {}", bookId);
@@ -269,12 +303,14 @@ public class BookService {
         return convertToResponse(book);
     }
 
-    // Search for books using fuzzy matching in Elasticsearch or MySQL fallback
+    // Implements resilient fuzzy searching on the book catalog.
     public List<BookResponse> searchBooks(String keyword) {
         log.info("Searching books with keyword: {}", keyword);
         if (keyword == null || keyword.trim().isEmpty()) {
             return getAllBooks();
         }
+        
+        // Attempt search in Elasticsearch first.
         try {
             List<BookDocument> docs = bookSearchRepository.fuzzySearch(keyword);
             if (docs != null && !docs.isEmpty()) {
@@ -284,12 +320,14 @@ public class BookService {
         } catch (Exception e) {
             log.warn("Elasticsearch search failed for '{}', falling back to MySQL: {}", keyword, e.getMessage());
         }
+        
+        // Fallback to MySQL query.
         return bookRepository.searchBooks(keyword).stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
-    // Retrieve books belonging to a specific genre
+    // Retrieves all active books matching a specific genre.
     public List<BookResponse> getBooksByGenre(String genre) {
         log.info("Fetching books by genre: {}", genre);
         try {
@@ -301,12 +339,14 @@ public class BookService {
         } catch (Exception e) {
             log.warn("Elasticsearch not available for genre '{}', falling back to MySQL", genre);
         }
+        
+        // Fallback to MySQL query.
         return bookRepository.findByGenreIgnoreCaseAndActiveTrue(genre).stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
-    // Retrieve books marked as featured for the home page
+    // Retrieves all promoted featured books.
     @Cacheable(value = "books:featured")
     public List<BookResponse> getFeaturedBooks() {
         log.info("Fetching featured books");
@@ -319,12 +359,14 @@ public class BookService {
         } catch (Exception e) {
             log.warn("Elasticsearch not available for featured books, falling back to MySQL: {}", e.getMessage());
         }
+        
+        // Fallback to MySQL query.
         return bookRepository.findByFeaturedTrueAndActiveTrue().stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
-    // Retrieve books within a specified price range
+    // Filters catalog items within a specified price range.
     public List<BookResponse> getBooksByPriceRange(Double minPrice, Double maxPrice) {
         log.info("Fetching books in price range: {} - {}", minPrice, maxPrice);
         if (minPrice < 0 || maxPrice < minPrice) {
@@ -338,22 +380,30 @@ public class BookService {
         } catch (Exception e) {
             log.warn("Elasticsearch not available for price filter");
         }
+        
+        // Fallback to MySQL query.
         return bookRepository.findByPriceBetweenAndActiveTrue(minPrice, maxPrice).stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
-    // Check if sufficient stock is available for a book
+    // Checks if sufficient stock is available for a book order.
     public boolean checkStock(Long bookId, Integer quantity) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
         return book.getStock() >= quantity;
     }
 
-    // Decrease stock levels when an order is placed
+    // Reserves and decrements inventory stock for a new order.
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "books:all", allEntries = true),
+        @CacheEvict(value = "books:id", key = "#bookId"),
+        @CacheEvict(value = "books:featured", allEntries = true)
+    })
     public boolean reserveStock(Long bookId, Integer quantity) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
         if (book.getStock() < quantity) return false;
+        
         book.setStock(book.getStock() - quantity);
         book.setUpdatedAt(LocalDateTime.now());
         bookRepository.save(book);
@@ -361,8 +411,13 @@ public class BookService {
         return true;
     }
 
-    // Increase stock levels when an order is cancelled
+    // Releases and increments inventory stock when an order is cancelled or falls back.
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "books:all", allEntries = true),
+        @CacheEvict(value = "books:id", key = "#bookId"),
+        @CacheEvict(value = "books:featured", allEntries = true)
+    })
     public void releaseStock(Long bookId, Integer quantity) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new ResourceNotFoundException("Book not found"));
         book.setStock(book.getStock() + quantity);
@@ -371,7 +426,7 @@ public class BookService {
         syncToElasticsearch(book);
     }
 
-    // Update the average rating of a book
+    // Updates a book's average star rating.
     public void updateRating(Long bookId, Double rating) {
         Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found id=" + bookId));
         double rounded = Math.round(rating * 10.0) / 10.0;
@@ -381,7 +436,7 @@ public class BookService {
         syncToElasticsearch(updated);
     }
 
-    // Synchronize all books from database to Elasticsearch index
+    // Forces full synchronization of all catalog database entries into the Elasticsearch index.
     @Transactional
     public String syncAllBooksToElasticsearch(String role) {
         verifyAdmin(role);
@@ -397,4 +452,4 @@ public class BookService {
         }
         return "Synced " + successCount + " books to Elasticsearch";
     }
-}
+}

@@ -46,12 +46,12 @@ class ImageStorageServiceTest {
                 "dummy image content".getBytes()
         );
 
-        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/booknest/covers/test.jpg");
+        Map<String, Object> uploadResult = Map.of("secure_url", "https:// cloudinary.com/booknest/covers/test.jpg");
         when(uploader.upload(any(byte[].class), anyMap())).thenReturn(uploadResult);
 
         String savedPath = imageStorageService.saveImage(mockFile);
 
-        assertThat(savedPath).isEqualTo("https://cloudinary.com/booknest/covers/test.jpg");
+        assertThat(savedPath).isEqualTo("https:// cloudinary.com/booknest/covers/test.jpg");
         verify(uploader).upload(any(byte[].class), anyMap());
     }
 
@@ -97,7 +97,7 @@ class ImageStorageServiceTest {
 
     @Test
     void deleteImage_validPath_deletesFile() throws IOException {
-        String cloudinaryUrl = "https://res.cloudinary.com/demo/image/upload/v1/booknest/covers/test.webp";
+        String cloudinaryUrl = "https:// res.cloudinary.com/demo/image/upload/v1/booknest/covers/test.webp";
         
         imageStorageService.deleteImage(cloudinaryUrl);
 
@@ -116,12 +116,12 @@ class ImageStorageServiceTest {
     void saveImageFromFile_success() throws IOException {
         java.io.File mockFile = mock(java.io.File.class);
         when(mockFile.getName()).thenReturn("test.jpg");
-        Map<String, Object> uploadResult = Map.of("secure_url", "https://cloudinary.com/booknest/covers/test.jpg");
+        Map<String, Object> uploadResult = Map.of("secure_url", "https:// cloudinary.com/booknest/covers/test.jpg");
         when(uploader.upload(any(java.io.File.class), anyMap())).thenReturn(uploadResult);
 
         String savedPath = imageStorageService.saveImageFromFile(mockFile);
 
-        assertThat(savedPath).isEqualTo("https://cloudinary.com/booknest/covers/test.jpg");
+        assertThat(savedPath).isEqualTo("https:// cloudinary.com/booknest/covers/test.jpg");
     }
 
     @Test
@@ -150,7 +150,7 @@ class ImageStorageServiceTest {
 
     @Test
     void deleteImage_ioException() throws IOException {
-        String cloudinaryUrl = "https://res.cloudinary.com/demo/image/upload/v1/booknest/covers/test.webp";
+        String cloudinaryUrl = "https:// res.cloudinary.com/demo/image/upload/v1/booknest/covers/test.webp";
         when(uploader.destroy(eq("booknest/covers/test"), anyMap())).thenThrow(new IOException("Delete failed"));
 
         // Should not throw, just logs warning
@@ -160,7 +160,7 @@ class ImageStorageServiceTest {
 
     @Test
     void deleteImage_invalidUrl() throws IOException {
-        String invalidUrl = "https://res.cloudinary.com/demo/image/invalidurl";
+        String invalidUrl = "https:// res.cloudinary.com/demo/image/invalidurl";
         
         imageStorageService.deleteImage(invalidUrl);
         

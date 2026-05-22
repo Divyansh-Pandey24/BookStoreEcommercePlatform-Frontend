@@ -21,12 +21,14 @@ public class EBookAdminController {
         this.ebookService = ebookService;
     }
 
+    // Asserts that the client role represents an ADMIN user.
     private void checkAdminRole(String role) {
         if (!"ADMIN".equals(role)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied: Admins only");
         }
     }
 
+    // Creates and uploads a new e-book catalog record with secure file attachments.
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<EBook> createEBook(
             @RequestHeader("X-User-Role") String role,
@@ -41,18 +43,21 @@ public class EBookAdminController {
         return ResponseEntity.ok(ebookService.createEBook(title, author, description, price, pdfFile, coverImage));
     }
 
+    // Fetches the list of all e-book purchases globally.
     @GetMapping("/purchases")
     public ResponseEntity<List<EBookPurchase>> getAllPurchases(@RequestHeader(value = "X-User-Role", required = false) String role) {
         checkAdminRole(role);
         return ResponseEntity.ok(ebookService.getPurchases());
     }
 
+    // Lists all registered e-books.
     @GetMapping
     public ResponseEntity<List<EBook>> getAllEBooks(@RequestHeader(value = "X-User-Role", required = false) String role) {
         checkAdminRole(role);
         return ResponseEntity.ok(ebookService.getAllEBooks());
     }
 
+    // Modifies e-book catalog details and replaces PDF or cover artwork files on storage.
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ResponseEntity<EBook> updateEBook(
             @RequestHeader("X-User-Role") String role,
@@ -68,6 +73,7 @@ public class EBookAdminController {
         return ResponseEntity.ok(ebookService.updateEBook(id, title, author, description, price, pdfFile, coverImage));
     }
 
+    // Permanently deletes an e-book and deletes its storage files.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEBook(
             @RequestHeader("X-User-Role") String role,

@@ -16,7 +16,9 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
     public ClientConfiguration clientConfiguration() {
         // Strip protocol from URI to extract host and port
         String hostAndPort = elasticsearchUri
+            .replace("http:// ", "")
             .replace("http://", "")
+            .replace("https:// ", "")
             .replace("https://", "");
 
         return ClientConfiguration.builder()
@@ -25,4 +27,4 @@ public class ElasticsearchConfig extends ElasticsearchConfiguration {
             .withSocketTimeout(java.time.Duration.ofSeconds(30))
             .build();
     }
-}
+}

@@ -55,7 +55,7 @@ class CartServiceImplTest {
         availableBook.setCoverImageUrl("cover.jpg");
     }
 
-    // ─────────────────────────── GET CART ───────────────────────────
+    // GET CART
 
     @Test
     @DisplayName("getCartByUser: existing cart → returns CartResponse")
@@ -80,7 +80,7 @@ class CartServiceImplTest {
         verify(cartRepository).save(any(Cart.class));
     }
 
-    // ─────────────────────────── ADD ITEM ───────────────────────────
+    // ADD ITEM
 
     @Test
     @DisplayName("addItem: new item, book in stock → item added, total recalculated")
@@ -170,7 +170,7 @@ class CartServiceImplTest {
         assertThat(existingItem.getQuantity()).isEqualTo(5); // 3 + 2
     }
 
-    // ─────────────────────────── REMOVE ITEM ───────────────────────────
+    // REMOVE ITEM
 
     @Test
     @DisplayName("removeItem: item found in cart → removed")
@@ -201,7 +201,7 @@ class CartServiceImplTest {
                 .hasMessageContaining("Item not found");
     }
 
-    // ─────────────────────────── UPDATE QUANTITY ───────────────────────────
+    // UPDATE QUANTITY
 
     @Test
     @DisplayName("updateQuantity: valid quantity → updated and saved")
@@ -229,7 +229,7 @@ class CartServiceImplTest {
                 .hasMessageContaining("at least 1");
     }
 
-    // ─────────────────────────── CLEAR CART ───────────────────────────
+    // CLEAR CART
 
     @Test
     @DisplayName("clearCart: success → items empty, total 0")
@@ -249,7 +249,7 @@ class CartServiceImplTest {
         assertThat(emptyCart.getTotalPrice()).isEqualTo(0.0);
     }
 
-    // ─────────────────────────── GET ITEM COUNT ───────────────────────────
+    // GET ITEM COUNT
 
     @Test
     @DisplayName("getItemCount: existing cart with items → returns correct size")

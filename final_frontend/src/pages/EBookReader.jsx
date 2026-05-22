@@ -34,7 +34,7 @@ const EBookReader = () => {
       const readRes = await readEBook(id);
       setPdfUrl(readRes.data.pdfUrl);
     } catch (err) {
-      // If 403 Forbidden, we haven't purchased it yet. 
+      // If 403 Forbidden, we haven't purchased it yet.
       // The ebook details were already fetched if it reached here,
       // but if the FIRST call (getEBookById) failed, it would catch here.
       if (err.response?.status === 403 && ebook) {

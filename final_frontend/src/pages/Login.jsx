@@ -6,14 +6,22 @@ import toast from "react-hot-toast";
 import "./Login.css";
 
 function Login() {
+  // Hook into AuthContext for managing successful login details
   const { login } = useAuth();
+  // Hook to programmatically change path after login
   const navigate = useNavigate();
+  // State variable storing user email address input
   const [email, setEmail] = useState("");
+  // State variable storing user password input
   const [password, setPassword] = useState("");
+  // State variable representing submit button loading status
   const [loading, setLoading] = useState(false);
 
+  // Form submit handler that sends login details to auth microservice
   async function handleSubmit(e) {
+    // Prevent page reload on form submit
     e.preventDefault();
+    // Validate that required fields are present
     if (!email || !password) {
       toast.error("Required fields must be completed.");
       return;
@@ -21,12 +29,16 @@ function Login() {
 
     try {
       setLoading(true);
+      // Send request containing email and password parameters to login endpoint
       const res = await API.post("/auth/login", { email, password });
+      // Extract session tokens and user details from successful API response
       const { accessToken, refreshToken, userId, role, fullName, email: userEmail, profilePicture } = res.data;
+      // Update current user state and cache session tokens inside localStorage
       login({ userId, role, fullName, email: userEmail, profilePicture }, accessToken, refreshToken);
       toast.success("Authentication successful.");
       navigate("/");
     } catch (error) {
+      // Handle login error by displaying returned server message or fallback text
       const msg = error.response?.data?.message || error.response?.data || "Authentication system error.";
       toast.error(typeof msg === "string" ? msg : "Login failed.");
     } finally {

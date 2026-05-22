@@ -1,10 +1,10 @@
 import axios from "axios";
 
 const API_BASE_URL = window.location.hostname === "localhost" 
-  ? "http://localhost:8080/api" 
+  ? "http://localhost:8080/api"
   : "/api";
 
-// Base URL for the gateway WITHOUT /api — used for static file paths like /ebook-uploads/** and /uploads/**
+// Base URL for the gateway without the /api prefix
 export const GATEWAY_BASE_URL = window.location.hostname === "localhost"
   ? "http://localhost:8080"
   : "";
@@ -47,24 +47,11 @@ API.interceptors.response.use(
   }
 );
 
-/**
- * Convert a stored coverImageUrl to a full, browser-loadable URL.
- *
- * The backend may store:
- *   1. A relative path  →  "uploads/books/book_1.jpg"
- *   2. A legacy absolute Windows path  →  "D:/BookNest/uploads/books/book_1.jpg"
- *
- * In both cases we extract the "uploads/books/..." portion and prepend
- * the gateway base URL so the browser requests:
- *   http://localhost:8080/uploads/books/book_1.jpg
- *
- * The gateway (Route 9) forwards /uploads/** to the book-service, which
- * serves the file via its WebMvcConfigurer resource handler.
- */
+// Convert a stored coverImageUrl to a full, browser-loadable URL
 export const getImageUrl = (coverImageUrl) => {
   if (!coverImageUrl) return null;
 
-  // Already a full URL — return as-is (handles http / https)
+  // Already a full URL return as-is (handles http / https)
   if (coverImageUrl.startsWith("http://") || coverImageUrl.startsWith("https://")) {
     return coverImageUrl;
   }
@@ -72,13 +59,13 @@ export const getImageUrl = (coverImageUrl) => {
   // Normalise Windows backslashes to forward slashes
   const normalised = coverImageUrl.replace(/\\/g, "/");
 
-  // EBook local uploads — served at /ebook-uploads/** (no /api prefix)
+  // Map local eBook uploads to relative server path
   const ebookUploadsIndex = normalised.indexOf("ebook-uploads/");
   if (ebookUploadsIndex !== -1) {
     return `${GATEWAY_BASE_URL}/${normalised.substring(ebookUploadsIndex)}`;
   }
 
-  // Book cover images — served at /uploads/** (no /api prefix)
+  // Map local book covers to relative server path
   const uploadsIndex = normalised.indexOf("uploads/");
   if (uploadsIndex !== -1) {
     return `${GATEWAY_BASE_URL}/${normalised.substring(uploadsIndex)}`;

@@ -59,7 +59,7 @@ class AuthControllerTest {
         );
     }
 
-    // ─────────────────────────── REGISTER ───────────────────────────
+    // REGISTER
 
     @Test
     @DisplayName("POST /auth/register: success → 200 OK")
@@ -113,7 +113,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.password").value("Password must contain at least one letter and one number"));
     }
 
-    // ─────────────────────────── LOGIN ───────────────────────────
+    // LOGIN
 
     @Test
     @DisplayName("POST /auth/login: success → 200 OK")
@@ -149,7 +149,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Invalid email or password"));
     }
 
-    // ─────────────────────────── REFRESH ───────────────────────────
+    // REFRESH
 
     @Test
     @DisplayName("POST /auth/refresh: success → 200 OK")
@@ -177,7 +177,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Refresh token is required"));
     }
 
-    // ─────────────────────────── FORGOT PASSWORD ───────────────────────────
+    // FORGOT PASSWORD
 
     @Test
     @DisplayName("POST /auth/forgot-password: success → 200 OK")

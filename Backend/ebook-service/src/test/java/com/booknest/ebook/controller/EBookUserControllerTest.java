@@ -60,13 +60,13 @@ class EBookUserControllerTest {
     @Test
     @DisplayName("GET /ebooks/user/{ebookId}/read: success → 200 OK")
     void readEBook_success() throws Exception {
-        when(ebookService.getPdfUrlForUser(anyLong(), anyString(), anyLong())).thenReturn("http://pdfurl.com");
+        when(ebookService.getPdfUrlForUser(anyLong(), anyString(), anyLong())).thenReturn("http:// pdfurl.com");
 
         mockMvc.perform(get("/ebooks/user/1/read")
                         .header("X-User-Id", 10L)
                         .header("X-User-Role", "USER"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pdfUrl").value("http://pdfurl.com"));
+                .andExpect(jsonPath("$.pdfUrl").value("http:// pdfurl.com"));
     }
 
     @Test

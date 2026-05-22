@@ -14,14 +14,12 @@ import java.util.Arrays;
 @Slf4j
 public class LoggingAspect {
 
+    // Declares the diagnostic execution pointcut for the cart service layer.
     @Pointcut("execution(* com.booknest.cart.service.*.*(..))")
     public void serviceLayer() {
     }
 
-    // ProceedingJoinPoint: This is the most powerful tool in AOP. It is a "Pause
-    // Button." When a service method is called, Spring pauses the execution and
-    // gives you this joinPoint object. It contains all the info about the paused
-    // method.
+    // Intercepts service-layer calls, logging parameters, execution duration, and success/error outcomes.
     @Around("serviceLayer()")
     public Object logServiceAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();

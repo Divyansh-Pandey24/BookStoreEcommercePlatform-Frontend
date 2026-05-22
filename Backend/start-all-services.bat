@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 title BookNest - Start All Services
 color 0A
 
@@ -11,6 +12,25 @@ echo Each service will open in its own console window.
 echo.
 
 SET BASE_DIR=%~dp0
+
+REM -------------------------------------------------------
+REM Load environment variables from .env if present
+REM -------------------------------------------------------
+if exist "%BASE_DIR%.env" (
+    echo Loading environment variables from .env file...
+    for /f "usebackq tokens=1* delims==" %%a in ("%BASE_DIR%.env") do (
+        set "key=%%a"
+        if not "%%a"=="" (
+            set "firstchar=!key:~0,1!"
+            if not "!firstchar!"=="#" (
+                set "%%a=%%b"
+            )
+        )
+    )
+) else (
+    echo WARNING: .env file not found in %BASE_DIR%!
+)
+
 
 REM -------------------------------------------------------
 REM 1. Eureka Server (Service Registry - MUST start first)

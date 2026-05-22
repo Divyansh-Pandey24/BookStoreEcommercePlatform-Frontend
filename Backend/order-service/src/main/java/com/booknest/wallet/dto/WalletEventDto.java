@@ -11,6 +11,6 @@ public class WalletEventDto {
     private Long   userId;
     private String type;
     private String message;
-    private String userEmail;      // ← NEW
-    private String userMobile;     // ← NEW
+    private String userEmail;      // NEW
+    private String userMobile;     // NEW
 }

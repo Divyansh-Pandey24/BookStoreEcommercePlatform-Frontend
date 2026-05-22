@@ -35,21 +35,21 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
 
-    // Register a new user
+    // Registers a new customer user account.
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         log.info("Received register request for: {}", request.getEmail());
         return ResponseEntity.ok(authService.register(request));
     }
 
-    // Authenticate user and return tokens
+    // Authenticates a user's credentials and returns JWT access and refresh tokens.
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Received login request for: {}", request.getEmail());
         return ResponseEntity.ok(authService.login(request));
     }
 
-    // Refresh expired access tokens
+    // Regenerates a fresh access token using an active refresh token.
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refreshToken");
@@ -59,13 +59,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.refreshTokens(refreshToken));
     }
 
-    // Get profile details of the logged-in user
+    // Retrieves profile details of the currently authenticated user.
     @GetMapping("/profile")
     public ResponseEntity<User> getProfile(@RequestHeader("X-User-Id") Long userId) {
         return ResponseEntity.ok(authService.getUserById(userId));
     }
 
-    // Initiate password reset flow
+    // Initiates the reset password flow by sending a reset email.
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -76,7 +76,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", msg));
     }
 
-    // Reset password using token
+    // Resets the user's password using a reset token.
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
         String token = request.get("token");
@@ -88,11 +88,11 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", msg));
     }
 
-    // Get user profile details by ID
+    // Retrieves minimal user metadata profile by user ID.
     @GetMapping("/user/{userId}")
     public UserProfileDto getUserById(@PathVariable Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return new UserProfileDto(user.getUserId(), user.getFullName(), user.getEmail(), user.getMobile());
     }
-}
+}

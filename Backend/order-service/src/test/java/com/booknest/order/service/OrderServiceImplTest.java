@@ -119,7 +119,7 @@ class OrderServiceImplTest {
         orderItem.setOrder(savedOrder);
     }
 
-    // ─────────────────────────── PLACE ORDER ───────────────────────────
+    // PLACE ORDER
 
     @Test
     @DisplayName("placeOrder: COD, valid cart and stock → order saved, cart cleared, event published")
@@ -178,7 +178,7 @@ class OrderServiceImplTest {
     @DisplayName("placeOrder: invalid payment mode → throws RuntimeException")
     void placeOrder_invalidPaymentMode_throws() {
         codRequest.setPaymentMode("CREDIT_CARD");
-        // Service validates payment mode before fetching cart — no cartClient stub needed
+        // Service validates payment mode before fetching cart no cartClient stub needed
 
         assertThatThrownBy(() -> orderService.placeOrder(10L, codRequest))
                 .isInstanceOf(RuntimeException.class)
@@ -228,7 +228,7 @@ class OrderServiceImplTest {
         verify(walletClient).addMoney(10L, 998.0); // refund issued
     }
 
-    // ─────────────────────────── GET MY ORDERS ───────────────────────────
+    // GET MY ORDERS
 
     @Test
     @DisplayName("getMyOrders: returns orders for specified user")
@@ -242,7 +242,7 @@ class OrderServiceImplTest {
         assertThat(result.get(0).getUserId()).isEqualTo(10L);
     }
 
-    // ─────────────────────────── GET ORDER BY ID ───────────────────────────
+    // GET ORDER BY ID
 
     @Test
     @DisplayName("getOrderById: own order → success")
@@ -274,7 +274,7 @@ class OrderServiceImplTest {
         assertThat(response).isNotNull();
     }
 
-    // ─────────────────────────── GET ALL ORDERS ───────────────────────────
+    // GET ALL ORDERS
 
     @Test
     @DisplayName("getAllOrders: admin role → returns all orders")
@@ -307,7 +307,7 @@ class OrderServiceImplTest {
     }
 
 
-    // ─────────────────────────── UPDATE ORDER STATUS ───────────────────────────
+    // UPDATE ORDER STATUS
 
     @Test
     @DisplayName("updateOrderStatus: admin cancels WALLET order → refund and stock release")
@@ -352,7 +352,7 @@ class OrderServiceImplTest {
     }
 
 
-    // ─────────────────────────── CANCEL ORDER ───────────────────────────
+    // CANCEL ORDER
 
     @Test
     @DisplayName("cancelOrder: customer cancels own PLACED order → success")

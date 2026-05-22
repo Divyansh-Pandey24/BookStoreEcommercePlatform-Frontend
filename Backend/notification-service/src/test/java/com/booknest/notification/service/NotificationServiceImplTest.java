@@ -42,7 +42,7 @@ class NotificationServiceImplTest {
         sampleNotification.setIsRead(false);
     }
 
-    // ─────────────────────────── SAVE NOTIFICATION ───────────────────────────
+    // SAVE NOTIFICATION
 
     @Test
     @DisplayName("saveNotification: saves to DB and sends email when email is valid")
@@ -72,7 +72,7 @@ class NotificationServiceImplTest {
         verify(mailSender, never()).send(any(SimpleMailMessage.class));
     }
 
-    // ─────────────────────────── GET NOTIFICATIONS ───────────────────────────
+    // GET NOTIFICATIONS
 
     @Test
     @DisplayName("getNotifications: returns list of notifications for user")
@@ -86,7 +86,7 @@ class NotificationServiceImplTest {
         assertThat(result.get(0).getType()).isEqualTo("ORDER_PLACED");
     }
 
-    // ─────────────────────────── GET UNREAD COUNT ───────────────────────────
+    // GET UNREAD COUNT
 
     @Test
     @DisplayName("getUnreadCount: returns count of unread notifications")
@@ -98,7 +98,7 @@ class NotificationServiceImplTest {
         assertThat(count).isEqualTo(3L);
     }
 
-    // ─────────────────────────── MARK AS READ ───────────────────────────
+    // MARK AS READ
 
     @Test
     @DisplayName("markAsRead: own notification → marked read and saved")
@@ -122,7 +122,7 @@ class NotificationServiceImplTest {
                 .hasMessageContaining("Access denied");
     }
 
-    // ─────────────────────────── MARK ALL AS READ ───────────────────────────
+    // MARK ALL AS READ
 
     @Test
     @DisplayName("markAllAsRead: marks all unread notifications as read")
@@ -145,7 +145,7 @@ class NotificationServiceImplTest {
         verify(notificationRepository).saveAll(anyList());
     }
 
-    // ─────────────────────────── DELETE ───────────────────────────
+    // DELETE
 
     @Test
     @DisplayName("deleteNotification: own notification → deleted")

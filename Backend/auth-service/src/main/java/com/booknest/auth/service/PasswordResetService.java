@@ -96,4 +96,4 @@ public class PasswordResetService {
         tokenRepo.delete(resetToken);
         return "Password updated successfully";
     }
-}
+}

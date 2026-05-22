@@ -3,13 +3,17 @@ import { getImageUrl } from "../utils/api";
 import "./BookCard.css";
 
 function BookCard({ book }) {
+  // Extract raw cover image URL from book object
   const rawUrl = book.coverImageUrl;
+  // Convert raw URL to full absolute URL if needed
   const imageSrc = getImageUrl(rawUrl);
 
-  // Show stars based on rating
+  // Generate JSX elements representing star ratings
   function renderStars(rating) {
     const stars = [];
+    // Round down the rating to determine filled stars count
     const fullStars = Math.floor(rating || 0);
+    // Populate star array up to maximum of 5 stars
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <span key={i} className={i <= fullStars ? "star filled" : "star"}>
@@ -30,7 +34,7 @@ function BookCard({ book }) {
             loading="lazy"
             onError={(e) => {
               e.target.onerror = null;
-              // Inline SVG fallback — works offline, no external dependency
+              // Inline SVG fallback works offline, no external dependency
               e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='400' viewBox='0 0 300 400'%3E%3Crect width='300' height='400' fill='%23cccccc'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%23666666'%3ENo Cover%3C/text%3E%3C/svg%3E";
             }}
           />

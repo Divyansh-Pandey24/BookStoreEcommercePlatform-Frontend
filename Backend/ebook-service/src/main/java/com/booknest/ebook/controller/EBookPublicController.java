@@ -17,6 +17,7 @@ public class EBookPublicController {
         this.ebookService = ebookService;
     }
 
+    // Returns all active e-books in the catalog for public browsing.
     @GetMapping
     public ResponseEntity<List<EBook>> getActiveEBooks() {
         return ResponseEntity.ok(ebookService.getActiveEBooks());

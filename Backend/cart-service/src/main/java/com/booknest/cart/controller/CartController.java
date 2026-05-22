@@ -18,35 +18,35 @@ public class CartController {
 
     private final CartServiceImpl cartService;
 
-    // Retrieve the shopping cart for the authenticated user
+    // Retrieves the shopping cart details for the authenticated user.
     @GetMapping
     public ResponseEntity<CartResponse> getCart(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching cart for user: {}", userId);
         return ResponseEntity.ok(cartService.getCartByUser(userId));
     }
 
-    // Add a book to the authenticated user's cart
+    // Adds a book catalog item to the user's active shopping cart.
     @PostMapping("/add")
     public ResponseEntity<CartResponse> addItem(@RequestHeader("X-User-Id") Long userId, @Valid @RequestBody AddToCartRequest request) {
         log.info("Adding book {} to cart for user: {}", request.getBookId(), userId);
         return ResponseEntity.ok(cartService.addItem(userId, request));
     }
 
-    // Remove an item from the authenticated user's cart
+    // Deletes a specific line item from the shopping cart.
     @DeleteMapping("/item/{itemId}")
     public ResponseEntity<CartResponse> removeItem(@RequestHeader("X-User-Id") Long userId, @PathVariable Long itemId) {
         log.info("Removing item {} from cart for user: {}", itemId, userId);
         return ResponseEntity.ok(cartService.removeItem(userId, itemId));
     }
 
-    // Update the quantity of an item in the user's cart
+    // Updates the item quantity count in the user's active cart.
     @PatchMapping("/item/{itemId}")
     public ResponseEntity<CartResponse> updateQuantity(@RequestHeader("X-User-Id") Long userId, @PathVariable Long itemId, @RequestParam Integer quantity) {
         log.info("Updating item {} quantity to {} for user: {}", itemId, quantity, userId);
         return ResponseEntity.ok(cartService.updateQuantity(userId, itemId, quantity));
     }
 
-    // Clear all items from the user's cart
+    // Completely empties the shopping cart.
     @DeleteMapping("/clear")
     public ResponseEntity<String> clearCart(@RequestHeader("X-User-Id") Long userId) {
         log.info("Clearing cart for user: {}", userId);
@@ -54,10 +54,10 @@ public class CartController {
         return ResponseEntity.ok("Cart cleared.");
     }
 
-    // Get the total count of items in the user's cart
+    // Fetches the unique number of items currently in the cart.
     @GetMapping("/count")
     public ResponseEntity<Integer> getCount(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching item count for user: {}", userId);
         return ResponseEntity.ok(cartService.getItemCount(userId));
     }
-}
+}

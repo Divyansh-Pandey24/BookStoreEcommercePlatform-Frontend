@@ -12,6 +12,6 @@ public class OrderEventDto {
     private String type;
     private String message;
     private Long   orderId;
-    private String userEmail;      // ← Added
-    private String userMobile;     // ← Added
+    private String userEmail;      // Added
+    private String userMobile;     // Added
 }

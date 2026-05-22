@@ -18,20 +18,43 @@ import com.booknest.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// Service implementation for managing order lifecycle and cross-service orchestration
+// This service orchestrates the complex, distributed order placement transaction flow in BookNest.
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl {
 
+    /**
+     * Repository used to perform SQL operations on customer orders.
+     */
     private final OrderRepository orderRepository;
+
+    /**
+     * Feign client to query and clear user shopping carts.
+     */
     private final CartClient cartClient;
+
+    /**
+     * Feign client to adjust and verify catalog stock levels.
+     */
     private final BookClient bookClient;
+
+    /**
+     * Feign client to verify balances and process deductions/refunds.
+     */
     private final WalletClient walletClient;
+
+    /**
+     * Kafka event producer used to publish transactional order status updates.
+     */
     private final OrderEventProducer eventProducer;
+
+    /**
+     * Feign client to retrieve customer email and mobile details for alert notifications.
+     */
     private final UserClient userClient;
 
-    // Convert Order entity to OrderResponse DTO
+    // Helper method to map an Order entity to a formatted OrderResponse DTO.
     private OrderResponse toResponse(Order order) {
         List<OrderItemResponse> itemResponses = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
@@ -64,16 +87,16 @@ public class OrderServiceImpl {
         return response;
     }
 
-    // Process order placement with distributed transaction management
+    // Handles the distributed, step-by-step order placement and payment deduction flow.
     @Transactional
     public OrderResponse placeOrder(Long userId, PlaceOrderRequest request) {
-        // Validate payment method
+        // Step 1: Validate payment method options.
         String mode = request.getPaymentMode().toUpperCase();
         if (!mode.equals("COD") && !mode.equals("WALLET")) {
             throw new RuntimeException("Invalid payment mode. Use COD or WALLET.");
         }
 
-        // Fetch customer cart
+        // Step 2: Fetch the customer's current shopping cart.
         CartDto cart;
         try {
             cart = cartClient.getCart(userId);
@@ -88,7 +111,7 @@ public class OrderServiceImpl {
 
         double totalAmount = cart.getTotalPrice();
 
-        // Perform pre-order stock validation
+        // Step 3: Perform pre-order stock level checks.
         for (CartItemDto cartItem : cart.getItems()) {
             BookDto book;
             try {
@@ -102,7 +125,7 @@ public class OrderServiceImpl {
             }
         }
 
-        // Handle wallet deduction if selected
+        // Step 4: Handle WALLET billing and deductions early in the flow.
         if (mode.equals("WALLET")) {
             WalletDto wallet;
             try {
@@ -124,7 +147,7 @@ public class OrderServiceImpl {
             }
         }
 
-        // Reserve stock with compensating rollback logic
+        // Step 5: Reserve physical book stock, implementing rollback mechanisms on any failures.
         List<CartItemDto> reservedItems = new ArrayList<>();
         try {
             for (CartItemDto cartItem : cart.getItems()) {
@@ -135,7 +158,7 @@ public class OrderServiceImpl {
                 reservedItems.add(cartItem);
             }
         } catch (Exception e) {
-            // Compensating transaction: release reserved stock and refund wallet if applicable
+            // COMPENSATING TRANSACTION: If any reservation step fails, release already reserved items and refund wallet money.
             log.warn("Rolling back stock reservation for {} items.", reservedItems.size());
             for (CartItemDto reserved : reservedItems) {
                 try {
@@ -154,7 +177,7 @@ public class OrderServiceImpl {
             throw new RuntimeException(e.getMessage());
         }
 
-        // Prepare and save order record
+        // Step 6: Create and configure database Order entity structures.
         Order order = new Order();
         order.setUserId(userId);
         order.setPaymentMode(mode);
@@ -183,7 +206,7 @@ public class OrderServiceImpl {
         try {
             saved = orderRepository.save(order);
         } catch (Exception e) {
-            // Full system rollback on database failure
+            // COMPENSATING TRANSACTION: Full rollback on database save failures.
             log.error("Order save failed. Initiating full rollback.");
             for (CartItemDto cartItem : cart.getItems()) {
                 try {
@@ -203,8 +226,11 @@ public class OrderServiceImpl {
         }
 
         log.info("Order saved: {}", saved.getOrderId());
+        
+        // Step 7: Publish status event to Kafka to trigger async notifications/receipts.
         publishEvent(userId, "ORDER_PLACED", "Order #" + saved.getOrderId() + " placed.", saved.getOrderId());
 
+        // Step 8: Clear the user's cart asynchronously.
         try {
             cartClient.clearCart(userId);
         } catch (Exception e) {
@@ -214,13 +240,13 @@ public class OrderServiceImpl {
         return toResponse(saved);
     }
 
-    // Retrieve user-specific order history
+    // Retrieves historical order listings for a specific user.
     public List<OrderResponse> getMyOrders(Long userId) {
         return orderRepository.findByUserIdOrderByPlacedAtDesc(userId).stream()
                 .map(this::toResponse).toList();
     }
 
-    // Find specific order with authorization checks
+    // Retrieves details of a specific order, verifying owner/admin permissions.
     public OrderResponse getOrderById(Long orderId, Long userId, String role) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found."));
@@ -230,19 +256,19 @@ public class OrderServiceImpl {
         return toResponse(order);
     }
 
-    // Fetch all orders in the system (Admin only)
+    // Retrieves all active order transactions (Admin only).
     public List<OrderResponse> getAllOrders(String role) {
         if (!"ADMIN".equals(role)) throw new RuntimeException("Admin access required.");
         return orderRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    // Filter orders by status (Admin only)
+    // Filters orders by order status (Admin only).
     public List<OrderResponse> getOrdersByStatus(String status, String role) {
         if (!"ADMIN".equals(role)) throw new RuntimeException("Admin access required.");
         return orderRepository.findByOrderStatus(status.toUpperCase()).stream().map(this::toResponse).toList();
     }
 
-    // Update order status with side effects like refunding and stock release
+    // Updates the status of an order (Admin only).
     @Transactional
     public OrderResponse updateOrderStatus(Long orderId, String newStatus, String role) {
         if (!"ADMIN".equals(role)) throw new RuntimeException("Admin access required.");
@@ -252,13 +278,12 @@ public class OrderServiceImpl {
 
         String status = newStatus.toUpperCase();
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found."));
-
-
         
         if ("DELIVERED".equals(order.getOrderStatus()) && !newStatus.equals("DELIVERED")) {
             throw new RuntimeException("Delivered orders cannot be modified.");
         }
 
+        // COMPENSATING TRANSACTION: If transitions to CANCELLED, refund the wallet and release reserved stock.
         if ("CANCELLED".equals(status) && !order.getOrderStatus().equals("CANCELLED")) {
             if ("WALLET".equals(order.getPaymentMode())) {
                 try {
@@ -279,11 +304,13 @@ public class OrderServiceImpl {
         order.setOrderStatus(status);
         order.setUpdatedAt(LocalDateTime.now());
         Order updated = orderRepository.save(order);
+        
+        // Publish status event to Kafka.
         publishEvent(updated.getUserId(), status, "Order status updated to " + status, orderId);
         return toResponse(updated);
     }
 
-    // Cancel order by customer with refund and stock release
+    // Cancels a pending order (Customer self-service).
     @Transactional
     public OrderResponse cancelOrder(Long orderId, Long userId) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found."));
@@ -296,7 +323,7 @@ public class OrderServiceImpl {
             throw new RuntimeException("Cannot cancel order after dispatch.");
         }
 
-
+        // COMPENSATING TRANSACTION: Refund WALLET payment if applicable.
         if ("WALLET".equals(order.getPaymentMode())) {
             try {
                 walletClient.addMoney(userId, order.getTotalAmount());
@@ -304,6 +331,8 @@ public class OrderServiceImpl {
                 throw new RuntimeException("Refund failed.");
             }
         }
+        
+        // COMPENSATING TRANSACTION: Release reserved book stock back to catalog inventory.
         for (OrderItem item : order.getItems()) {
             try {
                 bookClient.releaseStock(item.getBookId(), item.getQuantity());
@@ -315,11 +344,13 @@ public class OrderServiceImpl {
         order.setOrderStatus("CANCELLED");
         order.setUpdatedAt(LocalDateTime.now());
         Order updated = orderRepository.save(order);
+        
+        // Publish cancellation status event to Kafka.
         publishEvent(userId, "CANCELLED", "Order #" + orderId + " cancelled.", orderId);
         return toResponse(updated);
     }
 
-    // Publish order event to Kafka
+    // Fetches customer contact profiles and publishes order status events to Kafka.
     private void publishEvent(Long userId, String type, String message, Long orderId) {
         String email = "", mobile = "";
         try {

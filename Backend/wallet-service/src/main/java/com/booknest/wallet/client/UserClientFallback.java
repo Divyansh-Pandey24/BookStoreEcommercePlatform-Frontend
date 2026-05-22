@@ -6,16 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 // ============================================================
-// FALLBACK for wallet-service → AUTH-SERVICE calls.
-//
-// getUserProfile() is used to enrich wallet responses with user
+// FALLBACK for wallet-service AUTH-SERVICE calls.
+// // getUserProfile() is used to enrich wallet responses with user
 // display info (name, email). If AUTH-SERVICE is down, we return
-// a stub profile — the wallet still works, just shows less info.
-//
-// WHY return stub instead of throw?
-//   getUserProfile() is for DISPLAY only. The actual wallet
-//   balance, deduct, add operations don't depend on it.
-//   A stub profile is better than crashing the entire wallet page.
+// a stub profile the wallet still works, just shows less info.
+// // WHY return stub instead of throw?
+// getUserProfile() is for DISPLAY only. The actual wallet
+// balance, deduct, add operations don't depend on it.
+// A stub profile is better than crashing the entire wallet page.
 // ============================================================
 @Component
 public class UserClientFallback implements UserClient {
@@ -31,7 +29,7 @@ public class UserClientFallback implements UserClient {
         UserProfileDto fallback = new UserProfileDto();
         // Preserve the userId so the caller can still identify the wallet owner
         fallback.setUserId(userId);
-        // Generic placeholder values — frontend should handle these gracefully
+        // Generic placeholder values frontend should handle these gracefully
         fallback.setFullName("Unknown User");
         fallback.setEmail("unavailable@service.down");
         fallback.setMobile("N/A");

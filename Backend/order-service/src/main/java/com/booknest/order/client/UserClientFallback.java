@@ -6,17 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 // ============================================================
-// FALLBACK for order-service → AUTH-SERVICE calls.
-//
-// getUserProfile() is used to enrich order confirmation emails
+// FALLBACK for order-service AUTH-SERVICE calls.
+// // getUserProfile() is used to enrich order confirmation emails
 // and order responses with user display info (name, email).
 // It is NOT involved in stock reservation or payment.
-//
-// If AUTH-SERVICE is down:
-//   - Return a stub with placeholder name/email
-//   - The order can still be placed (stub is display-only)
-//   - The confirmation email might show "Unknown User" but
-//     that's far better than blocking the entire order flow
+// // If AUTH-SERVICE is down:
+// - Return a stub with placeholder name/email
+// - The order can still be placed (stub is display-only)
+// - The confirmation email might show "Unknown User" but
+// that's far better than blocking the entire order flow
 // ============================================================
 @Component
 public class UserClientFallback implements UserClient {

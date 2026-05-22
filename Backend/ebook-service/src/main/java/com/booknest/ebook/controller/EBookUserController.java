@@ -18,17 +18,20 @@ public class EBookUserController {
         this.ebookService = ebookService;
     }
 
+    // Fetches detailed metadata of a specific catalog e-book.
     @GetMapping("/{ebookId}")
     public ResponseEntity<com.booknest.ebook.entity.EBook> getEBook(@PathVariable Long ebookId) {
         return ResponseEntity.ok(ebookService.getEBook(ebookId));
     }
 
+    // Purchases an e-book by deducting money from the user's wallet.
     @PostMapping("/{ebookId}/purchase")
     public ResponseEntity<Map<String, String>> purchaseEBook(@RequestHeader("X-User-Id") Long userId, @PathVariable Long ebookId) {
         ebookService.purchaseEBook(userId, ebookId);
         return ResponseEntity.ok(Map.of("message", "EBook purchased successfully"));
     }
 
+    // Resolves secure PDF source URL path for online reading access.
     @GetMapping("/{ebookId}/read")
     public ResponseEntity<Map<String, String>> readEBook(
             @RequestHeader(value = "X-User-Id", required = false) Long userId,
@@ -43,6 +46,7 @@ public class EBookUserController {
         return ResponseEntity.ok(Map.of("pdfUrl", pdfUrl));
     }
 
+    // Returns all e-books purchased by the active customer.
     @GetMapping("/purchases")
     public ResponseEntity<List<EBookPurchase>> getMyPurchases(@RequestHeader("X-User-Id") Long userId) {
         return ResponseEntity.ok(ebookService.getUserPurchases(userId));

@@ -64,9 +64,7 @@ function Wallet() {
       const options = {
         key: keyId,
 
-        // FIX ✅: Backend returns amount in RUPEES (e.g. 500.0)
-        // Razorpay checkout expects PAISE (50000)
-        // Without this, checkout amount won't match the order → payment rejected
+        // Convert amount from rupees to paise for Razorpay checkout
         amount: Math.round(orderAmount * 100),
 
         currency: currency || "INR",
@@ -76,16 +74,12 @@ function Wallet() {
 
         handler: async function (response) {
           try {
-            // CRITICAL FIX: Backend DTO fields are camelCase (razorpayOrderId, etc.)
-            // Razorpay callback gives snake_case (razorpay_order_id, etc.)
-            // Jackson does NOT auto-convert snake_case → camelCase, so they
-            // arrived as null → signature check always failed → "verification failed" toast.
-            // Solution: map to camelCase keys that match PaymentVerifyRequest.java
+            // Map callback keys from snake_case to camelCase to match backend DTO schema
             await API.post("/wallet/razorpay/verify", {
-              razorpayOrderId: response.razorpay_order_id,       // ← camelCase!
-              razorpayPaymentId: response.razorpay_payment_id,   // ← camelCase!
-              razorpaySignature: response.razorpay_signature,     // ← camelCase!
-              amount: orderAmount,   // ← in rupees (backend uses this directly)
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              amount: orderAmount,
             });
 
             toast.success("Money added to wallet successfully! 🎉");
@@ -102,14 +96,12 @@ function Wallet() {
           contact: user?.mobile || "",
         },
 
-        // FIX ✅: Simplified method config for reliable UPI ID support
-        // The complex config.display.blocks can break in test mode
-        // Use method flags + one config block for UPI ID text input
+        // Configure payment methods enabling UPI collect flows for sandboxed testing
         method: {
           card: true,
           netbanking: true,
           wallet: false,
-          upi: true,       // enables UPI section
+          upi: true,
           emi: false,
         },
 
@@ -121,7 +113,7 @@ function Wallet() {
                 instruments: [
                   {
                     method: "upi",
-                    flows: ["collect"],   // "collect" = UPI ID text input (no apps)
+                    flows: ["collect"],
                   },
                 ],
               },
@@ -144,7 +136,7 @@ function Wallet() {
         theme: { color: "#c9a84c" },
         modal: {
           ondismiss: () => {
-            // User closed the popup — reset state cleanly
+            // Reset adding state on dismiss
             setAddingMoney(false);
           },
         },
@@ -162,8 +154,7 @@ function Wallet() {
       toast.error(e.response?.data?.message || "Failed to start payment. Please try again.");
       setAddingMoney(false);
     }
-    // NOTE: don't put setAddingMoney(false) in finally here
-    // because rzp.open() is async — modal.ondismiss handles it
+    // Reset state on modal dismiss instead of finally block because checkout is async
   }
 
   function loadRazorpayScript() {

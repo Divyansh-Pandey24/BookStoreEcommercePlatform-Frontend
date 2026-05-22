@@ -3,24 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
-/**
- * OAuth2Success — handles the redirect back from Google OAuth.
- *
- * Flow:
- *   1. User clicks "Continue with Google" on Login page
- *   2. Browser navigates to http://localhost:8081/oauth2/authorization/google
- *   3. Spring handles the Google OAuth dance
- *   4. On success, Spring (GoogleOAuthSuccessHandler) redirects the browser to:
- *      http://localhost:5173/oauth2/success?accessToken=...&userId=...&...
- *   5. THIS component reads those URL params, stores them in AuthContext,
- *      and navigates to the home page.
- *
- * WHY useSearchParams instead of window.location.search:
- *   React Router's <BrowserRouter> manages the URL — using useSearchParams
- *   ensures we read the params from the router's view of the URL, which is
- *   consistent with how navigate() and other hooks work. window.location.search
- *   can occasionally lag behind in SPAs on the first render.
- */
+// Handles redirect callback from Google OAuth authentication
 function OAuth2Success() {
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
@@ -33,7 +16,7 @@ function OAuth2Success() {
     const userId         = searchParams.get("userId");
     const email          = searchParams.get("email");
     const fullName       = searchParams.get("fullName");
-    // profilePicture is optional — Google URL may not always be present
+    // profilePicture parameter is optional
     const profilePicture = searchParams.get("profilePicture") || null;
     const error          = searchParams.get("error");
 
@@ -44,15 +27,14 @@ function OAuth2Success() {
       return;
     }
 
-    // Both accessToken and userId are required — if either is missing,
-    // the redirect URL was corrupted or incomplete
+    // Verify that access token and user ID parameters are populated
     if (!accessToken || !userId) {
       toast.error("Google login response was incomplete. Please try again.");
       navigate("/login", { replace: true });
       return;
     }
 
-    // All good — store the user and tokens exactly like a normal login
+    // Save session state exactly like a normal login
     login(
       { userId: Number(userId), role, fullName, email, profilePicture },
       accessToken,
@@ -61,10 +43,9 @@ function OAuth2Success() {
 
     toast.success(`Welcome, ${fullName?.split(" ")[0] || "User"}! 👋`);
 
-    // replace: true so the /oauth2/success URL is removed from browser history
-    // (pressing Back after login won't re-run this page)
+    // Replace browser history state to avoid back button issues
     navigate("/", { replace: true });
-  }, [searchParams]); // re-run if searchParams change (they won't, but good practice)
+  }, [searchParams]);
 
   return (
     <div style={{

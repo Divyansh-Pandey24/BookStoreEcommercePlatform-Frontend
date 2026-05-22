@@ -61,7 +61,7 @@ class ReviewServiceImplTest {
         orderWithBook.setItems(List.of(orderItem));
     }
 
-    // ─────────────────────────── ADD REVIEW ───────────────────────────
+    // ADD REVIEW
 
     @Test
     @DisplayName("addReview: not reviewed yet, has purchased → saved and book rating updated")
@@ -114,14 +114,14 @@ class ReviewServiceImplTest {
         when(reviewRepository.findAverageRatingByBookId(100L)).thenReturn(4.0);
         doNothing().when(bookClient).updateRating(100L, 4.0);
 
-        // hasPurchasedBook catches exception → returns true → review proceeds
+        // hasPurchasedBook catches exception returns true review proceeds
         ReviewResponse response = reviewService.addReview(10L, "test@booknest.com", reviewRequest);
 
         assertThat(response).isNotNull();
         verify(reviewRepository).save(any(Review.class));
     }
 
-    // ─────────────────────────── EDIT REVIEW ───────────────────────────
+    // EDIT REVIEW
 
     @Test
     @DisplayName("editReview: own review → updated and book rating recalculated")
@@ -158,7 +158,7 @@ class ReviewServiceImplTest {
                 .hasMessageContaining("Editing denied");
     }
 
-    // ─────────────────────────── DELETE REVIEW ───────────────────────────
+    // DELETE REVIEW
 
     @Test
     @DisplayName("deleteReview: own review → deleted and book rating updated")
@@ -184,7 +184,7 @@ class ReviewServiceImplTest {
                 .hasMessageContaining("Deletion denied");
     }
 
-    // ─────────────────────────── GET REVIEWS ───────────────────────────
+    // GET REVIEWS
 
     @Test
     @DisplayName("getReviewsByBook: returns list of reviews for given book")

@@ -4,16 +4,22 @@ import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
+  // Extract user authentication state, logout function, and admin flag from AuthContext
   const { user, logout, isAdmin } = useAuth();
+  // Hook to programmatically redirect the user to other routes
   const navigate = useNavigate();
+  // State to manage whether the mobile drawer navigation menu is open
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // Perform logout operations and redirect user to the login screen
   function handleLogout() {
     logout();
     navigate("/login");
   }
 
+  // Toggle the visible state of the mobile navigation menu
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  // Programmatically close the mobile navigation menu
   const closeMenu = () => setIsMenuOpen(false);
 
   return (

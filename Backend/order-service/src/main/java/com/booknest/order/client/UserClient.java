@@ -7,11 +7,11 @@ import com.booknest.order.dto.UserProfileDto;
 
 // Feign client for cross-service communication with the auth-service.
 // fallback = UserClientFallback.class:
-//   Returns stub UserProfile (display only) — order still proceeds.
+// Returns stub UserProfile (display only) order still proceeds.
 @FeignClient(name = "AUTH-SERVICE", fallback = UserClientFallback.class)
 public interface UserClient {
 
     // Retrieve the profile details for a specific user
-    @GetMapping("/auth//user/{userId}")
+    @GetMapping("/auth// user/{userId}")
     UserProfileDto getUserProfile(@PathVariable("userId") Long userId);
-}
+}

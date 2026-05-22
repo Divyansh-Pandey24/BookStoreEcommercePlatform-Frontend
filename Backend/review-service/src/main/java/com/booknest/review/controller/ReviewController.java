@@ -19,7 +19,7 @@ public class ReviewController {
 
     private final ReviewServiceImpl reviewService;
 
-    // Create a new review for a specific book
+    // Creates and submits a new review rating for a specific catalog book.
     @PostMapping
     public ResponseEntity<ReviewResponse> addReview(@RequestHeader("X-User-Id") Long userId, @RequestHeader(value = "X-User-Email", required = false) String email, @Valid @RequestBody ReviewRequest request) {
         log.info("Adding review - User ID: {}, Book ID: {}", userId, request.getBookId());
@@ -27,14 +27,14 @@ public class ReviewController {
         return ResponseEntity.status(201).body(reviewService.addReview(userId, reviewerName, request));
     }
 
-    // Update an existing review by ID
+    // Modifies the rating score or text comment of an existing review.
     @PutMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> editReview(@PathVariable Long reviewId, @RequestHeader("X-User-Id") Long userId, @Valid @RequestBody ReviewRequest request) {
         log.info("Updating review ID: {} for user: {}", reviewId, userId);
         return ResponseEntity.ok(reviewService.editReview(reviewId, userId, request));
     }
 
-    // Remove a review by ID
+    // Permanently deletes a review from the database.
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @RequestHeader("X-User-Id") Long userId) {
         log.info("Deleting review ID: {} for user: {}", reviewId, userId);
@@ -42,17 +42,17 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    // List all reviews for a specific book ID
+    // Retrieves all reviews posted for a specific book.
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<ReviewResponse>> getBookReviews(@PathVariable Long bookId) {
         log.info("Fetching reviews for book ID: {}", bookId);
         return ResponseEntity.ok(reviewService.getReviewsByBook(bookId));
     }
 
-    // List all reviews written by the authenticated user
+    // Retrieves all reviews submitted by the authenticated customer.
     @GetMapping("/my")
     public ResponseEntity<List<ReviewResponse>> getMyReviews(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching reviews for user ID: {}", userId);
         return ResponseEntity.ok(reviewService.getMyReviews(userId));
     }
-}
+}

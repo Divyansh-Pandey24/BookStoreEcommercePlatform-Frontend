@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 // Feign client for cross-service communication with the wallet-service.
 // fallback = WalletClientFallback.class:
-//   CRITICAL: deductMoney() fallback THROWS — prevents order without payment.
-//   getWallet() returns 0 balance → order rejected (safe default).
-//   addMoney() (refund) logs CRITICAL alert for manual reconciliation.
+// CRITICAL: deductMoney() fallback THROWS prevents order without payment.
+// getWallet() returns 0 balance order rejected (safe default).
+// addMoney() (refund) logs CRITICAL alert for manual reconciliation.
 @FeignClient(name = "WALLET-SERVICE", fallback = WalletClientFallback.class)
 public interface WalletClient {
 
@@ -26,4 +26,4 @@ public interface WalletClient {
     // Refund or add a specified amount to the user's wallet balance
     @PostMapping("/wallet/{userId}/add")
     void addMoney(@PathVariable Long userId, @RequestParam Double amount);
-}
+}

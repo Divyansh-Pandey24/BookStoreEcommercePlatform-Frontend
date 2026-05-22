@@ -5,34 +5,32 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-/**
- * Initializes the Redis Bloom Filter on application startup.
- *
- * Two steps are performed in order:
- *   1. BF.RESERVE — create the filter in Redis (no-op if it already exists).
- *   2. Warm-up    — load all existing user emails from the DB into the filter.
- *
- * Without step 2, existing users would be blocked from logging in after
- * a Redis flush (e.g., cache clear or first-time setup).
- */
 import org.springframework.context.annotation.Profile;
 
+// This startup initializer warms up the Redis Bloom Filter with historical email registries.
 @Component
 @RequiredArgsConstructor
 @Slf4j
 @Profile("!test")
 public class FilterInitializer implements CommandLineRunner {
 
+    /**
+     * Repository used to fetch all historical user registrations from SQL.
+     */
     private final UserRepository userRepository;
+
+    /**
+     * Cache service wrapping RedisBloom command sets.
+     */
     private final BloomFilterService bloomFilterService;
 
+    // Entry point for startup execution task.
     @Override
     public void run(String... args) {
-        // Step 1: Create the Bloom filter structure in Redis (if not already there)
+        // Step 1: Create the Bloom filter structure in Redis (BF.RESERVE) if it does not already exist.
         bloomFilterService.initializeFilter();
 
-        // Step 2: Load existing emails from DB into the filter
+        // Step 2: Warm cache by querying all active users and inserting their lowercase email subjects into the filter.
         log.info("Warming up Bloom Filter with existing user emails...");
         userRepository.findAll().forEach(user -> {
             bloomFilterService.addEmail(user.getEmail());

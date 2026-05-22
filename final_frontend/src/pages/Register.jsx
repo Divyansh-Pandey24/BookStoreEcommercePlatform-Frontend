@@ -6,25 +6,31 @@ import "./Login.css";
 import "./Register.css";
 
 function Register() {
+  // Hook to programmatically navigate between pages
   const navigate = useNavigate();
+  // State object to manage input fields for the registration form
   const [form, setForm] = useState({ fullName: "", email: "", password: "", mobile: "" });
+  // State to control the submit button loading and disabled states
   const [loading, setLoading] = useState(false);
 
+  // Handle state changes for all input fields dynamically
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  // Validate form inputs prior to sending request to backend
   function validate(data) {
     if (!data.fullName || !data.email || !data.password) {
       toast.error("Required fields must be completed.");
       return false;
     }
-    // Backend requirement: 8 chars, at least one letter and one number
+    // Ensure password has at least 8 characters, with letters and numbers
     const passRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
     if (!passRegex.test(data.password)) {
       toast.error("Password must contain at least 8 characters, including letters and numbers.");
       return false;
     }
+    // Ensure mobile number is exactly 10 digits if provided
     if (data.mobile && !/^\d{10}$/.test(data.mobile)) {
       toast.error("Mobile number must be exactly 10 digits.");
       return false;
@@ -32,16 +38,20 @@ function Register() {
     return true;
   }
 
+  // Submit registration details to authentication API
   async function handleSubmit(e) {
     e.preventDefault();
+    // Stop form submission if validation fails
     if (!validate(form)) return;
 
     try {
       setLoading(true);
+      // Perform POST request to registration endpoint
       await API.post("/auth/register", form);
       toast.success("Account created. You may now login.");
       navigate("/login");
     } catch (error) {
+      // Extract API error message if present, fallback to standard error text
       const msg = error.response?.data?.message || error.response?.data || "System registration error occurred.";
       toast.error(typeof msg === "string" ? msg : "Registration failed.");
     } finally {

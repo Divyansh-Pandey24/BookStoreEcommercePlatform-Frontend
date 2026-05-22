@@ -171,12 +171,12 @@ public class BookServiceTest {
     void testUploadCoverImage() {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test data".getBytes());
         when(bookRepository.findById(1L)).thenReturn(Optional.of(sampleBook));
-        when(imageStorageService.saveImage(any())).thenReturn("http://image.url");
+        when(imageStorageService.saveImage(any())).thenReturn("http:// image.url");
         when(bookRepository.save(any(Book.class))).thenReturn(sampleBook);
 
         bookService.uploadCoverImage(1L, file, "ADMIN");
 
-        assertEquals("http://image.url", sampleBook.getCoverImageUrl());
+        assertEquals("http:// image.url", sampleBook.getCoverImageUrl());
     }
 
     @Test

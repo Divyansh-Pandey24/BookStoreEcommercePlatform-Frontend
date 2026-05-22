@@ -8,11 +8,11 @@ import com.booknest.review.dto.OrderResponse;
 
 // Feign client for interacting with the order-service to verify purchases.
 // fallback = OrderClientFallback.class:
-//   getMyOrders() returns empty list → review blocked (safe: no unverified reviews).
+// getMyOrders() returns empty list review blocked (safe: no unverified reviews).
 @FeignClient(name = "ORDER-SERVICE", fallback = OrderClientFallback.class)
 public interface OrderClient {
 
     // Retrieve order history for the authenticated user
     @GetMapping("/orders/my")
     List<OrderResponse> getMyOrders(@RequestHeader("X-User-Id") Long userId);
-}
+}

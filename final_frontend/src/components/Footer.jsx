@@ -1,5 +1,6 @@
 import "./Footer.css";
 
+// Render-only footer component showing brand logo, description, and copyright notice
 function Footer() {
   return (
     <footer className="footer">

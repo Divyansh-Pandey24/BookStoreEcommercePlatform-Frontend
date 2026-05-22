@@ -59,7 +59,7 @@ class JwtAuthFilterTest {
                 ex -> Mono.empty());
 
         result.block();
-        // Assert: no 401 was set — public path was allowed through
+        // Assert: no 401 was set public path was allowed through
         assertThat(exchange.getResponse().getStatusCode()).isNotEqualTo(HttpStatus.UNAUTHORIZED);
     }
 

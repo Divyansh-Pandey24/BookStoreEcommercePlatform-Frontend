@@ -105,7 +105,7 @@ export default function Admin() {
     finally { setLoading(false); }
   }
 
-  // ─── Book actions ────────────────────────────────────
+  // Book actions
   function openAddBook() { 
     setEditingBook(null); 
     setBookForm(EMPTY_BOOK); 
@@ -226,10 +226,10 @@ export default function Admin() {
     finally { setSavingStock(false); }
   }
 
-  // ─── Media actions ────────────────────────────────────
+  // Media actions
   // (Removed Media tab actions based on feedback)
 
-  // ─── Order actions ────────────────────────────────────
+  // Order actions
   async function handleUpdateOrderStatus(orderId, newStatus) {
     try {
       await API.patch(`/orders/admin/${orderId}/status`, { status: newStatus });
@@ -243,7 +243,7 @@ export default function Admin() {
 
   if (!isAdmin) return null;
 
-  // ─── Derived stats ────────────────────────────────────
+  // Derived stats
   const totalRevenue = orders
     .filter(o => o.orderStatus !== "CANCELLED")
     .reduce((s, o) => s + (o.totalAmount || 0), 0);
@@ -254,7 +254,7 @@ export default function Admin() {
     ? orders
     : orders.filter(o => o.orderStatus === statusFilter);
 
-  // ─── Format date ─────────────────────────────────────
+  // Format date
   function fmtDate(dt) {
     if (!dt) return "—";
     return new Date(dt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });

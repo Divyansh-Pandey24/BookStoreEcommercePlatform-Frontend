@@ -68,7 +68,7 @@ services:
 
   eureka-server:
     build: ./eureka-server
-    image: booknest-eureka-server:latest
+    image: ${ECR_REGISTRY}/booknest-eureka-server:latest
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -86,7 +86,7 @@ services:
 
   api-gateway:
     build: ./api-gateway
-    image: booknest-api-gateway:latest
+    image: ${ECR_REGISTRY}/booknest-api-gateway:latest
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -101,7 +101,7 @@ services:
 
   auth-service:
     build: ./auth-service
-    image: booknest-auth-service:latest
+    image: ${ECR_REGISTRY}/booknest-auth-service:latest
     container_name: auth-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -121,7 +121,7 @@ services:
 
   book-service:
     build: ./book-service-1
-    image: booknest-book-service:latest
+    image: ${ECR_REGISTRY}/booknest-book-service:latest
     container_name: book-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -144,7 +144,7 @@ services:
 
   order-service:
     build: ./order-service
-    image: booknest-order-service:latest
+    image: ${ECR_REGISTRY}/booknest-order-service:latest
     container_name: order-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -160,7 +160,7 @@ services:
 
   cart-service:
     build: ./cart-service
-    image: booknest-cart-service:latest
+    image: ${ECR_REGISTRY}/booknest-cart-service:latest
     container_name: cart-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -175,7 +175,7 @@ services:
 
   wallet-service:
     build: ./wallet-service
-    image: booknest-wallet-service:latest
+    image: ${ECR_REGISTRY}/booknest-wallet-service:latest
     container_name: wallet-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -193,7 +193,7 @@ services:
 
   notification-service:
     build: ./notification-service
-    image: booknest-notification-service:latest
+    image: ${ECR_REGISTRY}/booknest-notification-service:latest
     container_name: notification-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -211,7 +211,7 @@ services:
 
   review-service:
     build: ./review-service
-    image: booknest-review-service:latest
+    image: ${ECR_REGISTRY}/booknest-review-service:latest
     container_name: review-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -226,7 +226,7 @@ services:
 
   ebook-service:
     build: ./ebook-service
-    image: booknest-ebook-service:latest
+    image: ${ECR_REGISTRY}/booknest-ebook-service:latest
     container_name: ebook-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -246,7 +246,7 @@ services:
 
   admin-server:
     build: ./admin-server
-    image: booknest-admin-server:latest
+    image: ${ECR_REGISTRY}/booknest-admin-server:latest
     container_name: admin-server
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
@@ -259,7 +259,7 @@ services:
 
   frontend:
     build: ../final_frontend
-    image: booknest-frontend:latest
+    image: ${ECR_REGISTRY}/booknest-frontend:latest
     container_name: booknest-frontend
     ports:
       - "80:80"

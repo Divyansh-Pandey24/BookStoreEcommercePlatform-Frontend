@@ -45,7 +45,7 @@ public class User {
     // Timestamp when the account was created
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Soft-delete / suspension flag — suspended users cannot login
+    // Soft-delete / suspension flag suspended users cannot login
     @Column(nullable = false)
     private Boolean suspended = false;
 }

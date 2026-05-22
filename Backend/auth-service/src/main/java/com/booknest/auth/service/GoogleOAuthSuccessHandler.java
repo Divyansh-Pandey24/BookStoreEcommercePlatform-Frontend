@@ -28,6 +28,7 @@ public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    // it represent the incoming
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException {
@@ -39,6 +40,9 @@ public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
         Object principal = authentication.getPrincipal();
 
         // Extract user details from OIDC or OAuth2 principal
+        // this was introduced in java 16 which is known as pattern matching which helps
+        // us to convert one
+        // type to another just by checking the instance type
         if (principal instanceof OidcUser oidcUser) {
             email = oidcUser.getEmail();
             name = oidcUser.getFullName();
@@ -117,4 +121,4 @@ public class GoogleOAuthSuccessHandler implements AuthenticationSuccessHandler {
             return "";
         }
     }
-}
+}

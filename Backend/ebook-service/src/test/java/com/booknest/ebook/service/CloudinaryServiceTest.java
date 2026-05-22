@@ -43,12 +43,12 @@ public class CloudinaryServiceTest {
         when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
         
         Map<String, Object> result = new HashMap<>();
-        result.put("url", "http://cloudinary.com/pdf");
+        result.put("url", "http:// cloudinary.com/pdf");
         
         when(uploader.upload(any(byte[].class), anyMap())).thenReturn(result);
         
         String url = cloudinaryService.uploadPdf(file);
-        assertEquals("http://cloudinary.com/pdf", url);
+        assertEquals("http:// cloudinary.com/pdf", url);
     }
 
     @Test
@@ -57,11 +57,11 @@ public class CloudinaryServiceTest {
         when(file.getBytes()).thenReturn(new byte[]{4, 5, 6});
         
         Map<String, Object> result = new HashMap<>();
-        result.put("url", "http://cloudinary.com/image");
+        result.put("url", "http:// cloudinary.com/image");
         
         when(uploader.upload(any(byte[].class), anyMap())).thenReturn(result);
         
         String url = cloudinaryService.uploadImage(file);
-        assertEquals("http://cloudinary.com/image", url);
+        assertEquals("http:// cloudinary.com/image", url);
     }
 }

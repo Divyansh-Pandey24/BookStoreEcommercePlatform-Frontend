@@ -48,7 +48,7 @@ class GoogleOAuthSuccessHandlerTest {
 
     @BeforeEach
     void setUp() {
-        org.springframework.test.util.ReflectionTestUtils.setField(successHandler, "frontendUrl", "http://localhost:5173");
+        org.springframework.test.util.ReflectionTestUtils.setField(successHandler, "frontendUrl", "http:// localhost:5173");
 
         mockUser = new User();
         mockUser.setUserId(1L);
@@ -56,7 +56,7 @@ class GoogleOAuthSuccessHandlerTest {
         mockUser.setFullName("Test User");
         mockUser.setRole("CUSTOMER");
         mockUser.setProvider("LOCAL");
-        mockUser.setProfilePicture("http://old-pic");
+        mockUser.setProfilePicture("http:// old-pic");
     }
 
     @Test
@@ -64,7 +64,7 @@ class GoogleOAuthSuccessHandlerTest {
         OidcUser oidcUser = mock(OidcUser.class);
         when(oidcUser.getEmail()).thenReturn("test@booknest.com");
         when(oidcUser.getFullName()).thenReturn("Test User");
-        when(oidcUser.getPicture()).thenReturn("http://new-pic");
+        when(oidcUser.getPicture()).thenReturn("http:// new-pic");
 
         when(authentication.getPrincipal()).thenReturn(oidcUser);
         when(userRepository.findByEmail("test@booknest.com")).thenReturn(Optional.of(mockUser));
@@ -78,9 +78,9 @@ class GoogleOAuthSuccessHandlerTest {
         verify(response).sendRedirect(redirectCaptor.capture());
 
         String redirectUrl = redirectCaptor.getValue();
-        assertThat(redirectUrl).contains("http://localhost:5173/oauth2/success");
+        assertThat(redirectUrl).contains("http:// localhost:5173/oauth2/success");
         assertThat(redirectUrl).contains("accessToken=g-access");
-        // email is NOT passed through encode() in the handler — it's placed raw in the URL
+        // email is NOT passed through encode() in the handler it's placed raw in the URL
         assertThat(redirectUrl).contains("email=test@booknest.com");
     }
 
@@ -89,7 +89,7 @@ class GoogleOAuthSuccessHandlerTest {
         OAuth2User oauth2User = mock(OAuth2User.class);
         when(oauth2User.getAttribute("email")).thenReturn("new@booknest.com");
         when(oauth2User.getAttribute("name")).thenReturn("New User");
-        when(oauth2User.getAttribute("picture")).thenReturn("http://pic");
+        when(oauth2User.getAttribute("picture")).thenReturn("http:// pic");
 
         when(authentication.getPrincipal()).thenReturn(oauth2User);
         when(userRepository.findByEmail("new@booknest.com")).thenReturn(Optional.empty());
@@ -100,7 +100,7 @@ class GoogleOAuthSuccessHandlerTest {
         savedUser.setFullName("New User");
         savedUser.setProvider("GOOGLE");
         savedUser.setRole("CUSTOMER");
-        savedUser.setProfilePicture("http://pic");
+        savedUser.setProfilePicture("http:// pic");
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(jwtService.generateAccessToken(savedUser)).thenReturn("new-access");
@@ -121,7 +121,7 @@ class GoogleOAuthSuccessHandlerTest {
 
         successHandler.onAuthenticationSuccess(request, response, authentication);
 
-        verify(response).sendRedirect("http://localhost:5173/login?error=google_email_not_available");
+        verify(response).sendRedirect("http:// localhost:5173/login?error=google_email_not_available");
         verify(userRepository, never()).findByEmail(anyString());
     }
 }

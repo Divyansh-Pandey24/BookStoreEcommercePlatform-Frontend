@@ -39,6 +39,6 @@ public class CartResponse {
         private String  coverImageUrl;
         private Double  price;
         private Integer quantity;
-        private Double  subtotal;  // price × quantity
+        private Double  subtotal;  // price quantity
     }
 }

@@ -34,6 +34,7 @@ public class SecurityConfig {
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    // this httpsecurity allows us to modify that chain
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -54,8 +55,7 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator/**"
-                        )
+                                "/actuator/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form.disable())
@@ -89,4 +89,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

@@ -14,17 +14,29 @@ import com.booknest.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// Service implementation for managing book reviews, ratings, and purchase verification
+// This service implements the business logic for managing book
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewServiceImpl {
 
+    /**
+     * Repository used to perform SQL CRUD operations on Review records.
+     */
     private final ReviewRepository reviewRepository;
+
+    /**
+     * Feign client to propagate average rating updates to the Book catalog
+     * microservice.
+     */
     private final BookClient bookClient;
+
+    /**
+     * Feign client to fetch customer order history to verify purchase status.
+     */
     private final OrderClient orderClient;
 
-    // Convert Review entity to ReviewResponse DTO
+    // Helper method to map a Review database entity to a formatted
     private ReviewResponse toResponse(Review review) {
         ReviewResponse r = new ReviewResponse();
         r.setReviewId(review.getReviewId());
@@ -38,26 +50,30 @@ public class ReviewServiceImpl {
         return r;
     }
 
-    // Verify if a user has purchased a specific book before allowing a review
+    // Checks if a customer has purchased a book before allowing a review.
     private boolean hasPurchasedBook(Long userId, Long bookId) {
         try {
             List<OrderResponse> orders = orderClient.getMyOrders(userId);
             return orders.stream()
-                .filter(order -> !"CANCELLED".equals(order.getOrderStatus()))
-                .filter(order -> order.getItems() != null)
-                .flatMap(order -> order.getItems().stream())
-                .anyMatch(item -> bookId.equals(item.getBookId()));
+                    .filter(order -> !"CANCELLED".equals(order.getOrderStatus()))
+                    .filter(order -> order.getItems() != null)
+                    .flatMap(order -> order.getItems().stream())
+                    .anyMatch(item -> bookId.equals(item.getBookId()));
         } catch (Exception e) {
             log.error("Purchase verification failed for user {}: {}", userId, e.getMessage());
-            return true; // Fallback to allow review if service is down
+            // Fallback: Default to true if the order microservice is down to ensure review
+            // service resilience.
+            return true;
         }
     }
 
-    // Recalculate and update the average rating for a book in the book-service
+    // Recalculates and updates the average rating of a book.
     private void updateBookRating(Long bookId) {
         try {
             Double avg = reviewRepository.findAverageRatingByBookId(bookId);
             double newRating = (avg != null) ? avg : 0.0;
+
+            // Push updated average rating to Book catalog microservice.
             bookClient.updateRating(bookId, newRating);
             log.info("Updated book rating: bookId={}, rating={}", bookId, newRating);
         } catch (Exception e) {
@@ -65,13 +81,15 @@ public class ReviewServiceImpl {
         }
     }
 
-    // Add a new review after verifying purchase and ensuring no duplicate reviews exist
+    // Submits a new review for a book.
     @Transactional
     public ReviewResponse addReview(Long userId, String reviewerName, ReviewRequest request) {
+        // Step 1: Prevent duplicate reviews for the same book by the same user.
         if (reviewRepository.existsByUserIdAndBookId(userId, request.getBookId())) {
             throw new RuntimeException("You have already reviewed this book.");
         }
-        
+
+        // Step 2: Enforce verified purchase constraints.
         if (!hasPurchasedBook(userId, request.getBookId())) {
             throw new RuntimeException("Purchase required to review this book.");
         }
@@ -85,16 +103,19 @@ public class ReviewServiceImpl {
 
         Review saved = reviewRepository.save(review);
         log.info("New review saved for book: {} by user: {}", request.getBookId(), userId);
+
+        // Step 3: Recalculate average book rating.
         updateBookRating(request.getBookId());
         return toResponse(saved);
     }
 
-    // Edit an existing review owned by the user
+    // Edits an existing review.
     @Transactional
     public ReviewResponse editReview(Long reviewId, Long userId, ReviewRequest request) {
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
 
+        // Enforce ownership validation.
         if (!review.getUserId().equals(userId)) {
             throw new RuntimeException("Editing denied: user does not own this review.");
         }
@@ -105,16 +126,19 @@ public class ReviewServiceImpl {
 
         Review updated = reviewRepository.save(review);
         log.info("Review updated: reviewId={}", reviewId);
+
+        // Propagate updated book rating average.
         updateBookRating(review.getBookId());
         return toResponse(updated);
     }
 
-    // Delete a review owned by the user
+    // Deletes a review.
     @Transactional
     public void deleteReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
 
+        // Enforce ownership validation.
         if (!review.getUserId().equals(userId)) {
             throw new RuntimeException("Deletion denied: user does not own this review.");
         }
@@ -122,22 +146,24 @@ public class ReviewServiceImpl {
         Long bookId = review.getBookId();
         reviewRepository.delete(review);
         log.info("Review deleted: reviewId={}", reviewId);
+
+        // Propagate rating average updates.
         updateBookRating(bookId);
     }
 
-    // Retrieve all reviews for a specific book ordered by most recent
+    // Retrieves all active reviews for a book, sorted by most recent.
     public List<ReviewResponse> getReviewsByBook(Long bookId) {
         log.info("Fetching reviews for book: {}", bookId);
         return reviewRepository.findByBookIdOrderByCreatedAtDesc(bookId).stream()
-            .map(this::toResponse)
-            .collect(Collectors.toList());
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    // Retrieve all reviews written by a specific user
+    // Retrieves all reviews submitted by a specific user.
     public List<ReviewResponse> getMyReviews(Long userId) {
         log.info("Fetching reviews by user: {}", userId);
         return reviewRepository.findByUserId(userId).stream()
-            .map(this::toResponse)
-            .collect(Collectors.toList());
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
-}
+}

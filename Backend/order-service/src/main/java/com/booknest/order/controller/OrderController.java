@@ -20,7 +20,7 @@ public class OrderController {
 
     private final OrderServiceImpl orderService;
 
-    // Place a new order for the authenticated user
+    // Places a new catalog purchase order for the customer.
     @PostMapping("/place")
     public ResponseEntity<OrderResponse> placeOrder(@RequestHeader("X-User-Id") Long userId,
             @Valid @RequestBody PlaceOrderRequest request) {
@@ -28,14 +28,14 @@ public class OrderController {
         return ResponseEntity.status(201).body(orderService.placeOrder(userId, request));
     }
 
-    // Retrieve order history for the authenticated user
+    // Retrieves order history lists for the authenticated customer.
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@RequestHeader("X-User-Id") Long userId) {
         log.info("Fetching order history for user: {}", userId);
         return ResponseEntity.ok(orderService.getMyOrders(userId));
     }
 
-    // Retrieve details for a specific order
+    // Retrieves invoice details for a specific order.
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId,
             @RequestHeader("X-User-Id") Long userId, @RequestHeader("X-User-Role") String role) {
@@ -43,7 +43,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderById(orderId, userId, role));
     }
 
-    // Cancel an existing order
+    // Cancels a pending order and starts compensation workflows.
     @DeleteMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponse> cancelOrder(@PathVariable Long orderId,
             @RequestHeader("X-User-Id") Long userId) {
@@ -51,7 +51,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.cancelOrder(orderId, userId));
     }
 
-    // Admin: Retrieve all orders in the system
+    // Returns a list of all platform orders.
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/all")
     public ResponseEntity<List<OrderResponse>> getAllOrders(@RequestHeader("X-User-Role") String role) {
@@ -59,7 +59,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllOrders(role));
     }
 
-    // Admin: Filter orders by status
+    // Filters platform orders by delivery state status.
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/status/{status}")
     public ResponseEntity<List<OrderResponse>> getByStatus(@PathVariable String status,
@@ -68,7 +68,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByStatus(status, role));
     }
 
-    // Admin: Update the status of an order
+    // Updates the delivery status of an order.
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/admin/{orderId}/status")
     public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long orderId,

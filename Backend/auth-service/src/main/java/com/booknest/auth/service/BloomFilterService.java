@@ -6,45 +6,36 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-/**
- * Distributed Bloom Filter Service using Redis Stack's RedisBloom module.
- *
- * WHY REDIS BLOOM over Guava (in-memory):
- *   - DISTRIBUTED: All auth-service instances share the SAME filter state.
- *     With Guava, each JVM had its own filter — a user registered on
- *     instance A would be blocked by instance B.
- *   - THREAD-SAFE: Redis is single-threaded; concurrent BF.ADD calls are safe.
- *   - PERSISTENT: The filter survives service restarts (Redis AOF/RDB).
- *   - CHARSET-SAFE: No dependency on JVM's defaultCharset.
- *
- * Redis commands used:
- *   BF.RESERVE  — create the filter with custom capacity and error rate (on startup)
- *   BF.ADD      — add an email to the filter
- *   BF.EXISTS   — check if an email might exist (false positives possible, no false negatives)
- *
- * Filter key  : "booknest:emails:bloom"
- * Capacity    : 100,000 entries
- * Error rate  : 1%
- */
+// This service implements a distributed, thread-safe, persistent Bloom Filter cache using Redis Stack's RedisBloom module.
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BloomFilterService {
 
+    /**
+     * Unique key identifier for the Bloom Filter structure in Redis.
+     */
     private static final String BLOOM_KEY         = "booknest:emails:bloom";
+    
+    /**
+     * Target capacity (100,000 slots) reserved for email storage to maintain optimal density.
+     */
     private static final long   EXPECTED_CAPACITY = 100_000L;
+    
+    /**
+     * Acceptable false-positive error rate threshold (1.0%). As capacity grows, this bounds collision chances.
+     */
     private static final double ERROR_RATE        = 0.01;
 
+    /**
+     * Spring Redis utility class managing connection routing and string deserialisation.
+     */
     private final StringRedisTemplate redisTemplate;
 
-    /**
-     * Creates the Bloom filter structure in Redis.
-     * BF.RESERVE sets capacity and desired error rate.
-     * If the key already exists this throws, which we silently ignore —
-     * it simply means the filter was already created in a previous run.
-     */
+    // Reserves memory and configures parameters for the Redis Bloom Filter.
     public void initializeFilter() {
         try {
+            // Execute native Redis command BF.RESERVE using dynamic byte array arguments.
             redisTemplate.execute((RedisCallback<Object>) connection ->
                 connection.execute("BF.RESERVE",
                         BLOOM_KEY.getBytes(),
@@ -52,26 +43,27 @@ public class BloomFilterService {
                         String.valueOf(EXPECTED_CAPACITY).getBytes()
                 )
             );
+            // Log successful creation of the Bloom filter context.
             log.info("Redis Bloom filter created: key={} capacity={} errorRate={}",
                     BLOOM_KEY, EXPECTED_CAPACITY, ERROR_RATE);
         } catch (Exception e) {
-            // "ERR item exists" — filter was already created, perfectly fine.
+            // Ignore key-already-exists error as the filter persists across application Restarts.
             log.info("Redis Bloom filter already exists — skipping BF.RESERVE. ({})", e.getMessage());
         }
     }
 
-    /**
-     * Adds an email to the distributed Bloom filter.
-     * Emails are normalised to lowercase before insertion.
-     *
-     * @param email the user's email address
-     */
+    // Normalizes and inserts a new email address into the Redis Bloom Filter.
     public void addEmail(String email) {
+        // Abort execution if parameters are invalid.
         if (email == null || email.isBlank()) return;
+        
+        // Normalize email to lowercase to guarantee case-insensitive comparisons and prevent duplicate states.
         String normalised = email.toLowerCase();
 
-        // Using Lua to avoid Lettuce's ByteArrayOutput issues with integer returns
+        // Prepare Lua script to return native Redis BF.ADD execution responses.
         String script = "return redis.call('BF.ADD', KEYS[1], ARGV[1])";
+        
+        // Execute the script on connection commands, mapping outputs as integer metrics.
         redisTemplate.execute((RedisCallback<Object>) connection ->
                 connection.scriptingCommands().eval(
                         script.getBytes(),
@@ -84,21 +76,15 @@ public class BloomFilterService {
         log.debug("Added to Bloom filter: {}", normalised);
     }
 
-    /**
-     * Checks whether an email MIGHT exist.
-     *
-     * Returns:
-     *   false → email DEFINITELY does NOT exist (skip DB, reject immediately)
-     *   true  → email MIGHT exist (proceed to DB — could be a false positive at 1%)
-     *
-     * @param email the user's email address
-     * @return true if the email might exist, false if it definitely does not
-     */
+    // Verifies whether an email might have been registered previously (guarantees zero false negatives).
     public boolean mightExist(String email) {
+        // Return false directly if the query email context is invalid.
         if (email == null || email.isBlank()) return false;
+        
+        // Case normalization matching the addEmail pipeline.
         String normalised = email.toLowerCase();
 
-        // BF.EXISTS returns 1 (Long) if item might be in the set, 0 if definitely not.
+        // Invoke BF.EXISTS command via Lua script to check the bit arrays.
         String script = "return redis.call('BF.EXISTS', KEYS[1], ARGV[1])";
         Object result = redisTemplate.execute((RedisCallback<Object>) connection ->
                 connection.scriptingCommands().eval(
@@ -110,6 +96,7 @@ public class BloomFilterService {
                 )
         );
 
+        // Compare response: 1L represents potential hit, 0L representing absolute absence.
         boolean exists = Long.valueOf(1L).equals(result);
         log.debug("Bloom filter check [{}]: mightExist={}", normalised, exists);
         return exists;

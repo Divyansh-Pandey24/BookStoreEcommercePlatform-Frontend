@@ -4,26 +4,35 @@ import API from "../utils/api";
 import BookCard from "../components/BookCard";
 import "./Home.css";
 
+// Predefined list of book genres available for quick browsing and filtering
 const GENRES = ["Fiction", "Non-Fiction", "Mystery", "Fantasy", "Science Fiction", "Biography", "Romance", "Thriller", "History", "Self-Help"];
 
 function Home() {
+  // State array storing list of books designated as featured
   const [featuredBooks, setFeaturedBooks] = useState([]);
+  // State array storing all active books retrieved from server
   const [allBooks, setAllBooks] = useState([]);
+  // State indicating active fetch processes in progress
   const [loading, setLoading] = useState(true);
+  // State container for active search text input
   const [searchInput, setSearchInput] = useState("");
+  // Hook to programmatically route the user
   const navigate = useNavigate();
 
+  // Fetch featured and catalog book data asynchronously on component load
   useEffect(() => {
     console.log("🏠 Home component rendered, starting data fetch...");
     async function loadData() {
       try {
         console.log("📡 Sending API requests to /books/featured and /books...");
+        // Execute concurrent API calls for both featured and normal book lists
         const [featuredRes, allRes] = await Promise.all([
           API.get("/books/featured"),
           API.get("/books"),
         ]);
         console.log("📡 Raw Featured Response:", featuredRes.data);
         console.log("📡 Raw All Books Response:", allRes.data);
+        // Safely retrieve array formats from responses or content properties
         const featuredData = Array.isArray(featuredRes.data) ? featuredRes.data : (featuredRes.data?.content || []);
         const allData = Array.isArray(allRes.data) ? allRes.data : (allRes.data?.content || []);
         console.log("✅ Parsed Data! Featured:", featuredData.length, "Total:", allData.length);
@@ -38,6 +47,7 @@ function Home() {
     loadData();
   }, []);
 
+  // Route user to browse view with search criteria query string parameter
   function handleSearch(e) {
     e.preventDefault();
     if (searchInput.trim()) {
@@ -45,6 +55,7 @@ function Home() {
     }
   }
 
+  // Route user to browse view filtered specifically by selected genre
   function handleGenreClick(genre) {
     navigate(`/books?genre=${encodeURIComponent(genre)}`);
   }

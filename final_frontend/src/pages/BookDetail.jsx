@@ -71,7 +71,7 @@ function BookDetail() {
   if (loading) return <div className="detail-loading">Loading book details...</div>;
   if (!book)   return <div className="detail-loading">Book not found.</div>;
 
-  // ✅ FIXED: use book.rating and book.stock (not averageRating/stockQuantity)
+  // FIXED: use book.rating and book.stock (not averageRating/stockQuantity)
   const bookRating   = book.rating || 0;
   const bookStock    = book.stock  || 0;
   const inStock      = book.inStock && bookStock > 0;
@@ -101,7 +101,7 @@ function BookDetail() {
 
             <p className="detail-price">₹{book.price?.toFixed(2)}</p>
 
-            {/* ✅ FIXED: use book.stock */}
+            {/* FIXED: use book.stock */}
             <p className="detail-stock">
               {inStock ? `✅ In Stock (${bookStock} available)` : "❌ Out of Stock"}
             </p>
@@ -161,7 +161,7 @@ function BookDetail() {
                   <div key={review.reviewId} className="review-card">
                     <div className="review-header">
                       <div className="reviewer-name">
-                        {/* ✅ FIXED: use review.reviewerName (not userFullName) */}
+                        {/* FIXED: use review.reviewerName (not userFullName) */}
                         👤 <strong>{review.reviewerName || "Anonymous"}</strong>
                       </div>
                       <div className="review-stars">{renderStars(review.rating)}</div>

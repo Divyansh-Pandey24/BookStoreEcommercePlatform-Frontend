@@ -23,15 +23,17 @@ public class AdminUserController {
 
     private final UserRepository userRepository;
 
-    // The email address of the super admin — can never be modified or deleted
+    // The email address of the super admin can never be modified or deleted
     private static final String SUPER_ADMIN_EMAIL = "divyanshpandey996@gmail.com";
 
+    // Asserts that the client role represents an ADMIN user.
     private void checkAdmin(String role) {
         if (!"ADMIN".equals(role)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: Admins only");
         }
     }
 
+    // Fetches the targeted User entity and asserts they are not the permanently protected super admin.
     private User getProtectedUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -41,14 +43,14 @@ public class AdminUserController {
         return user;
     }
 
-    /** List all users */
+    // Returns a list of all registered accounts.
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers(@RequestHeader("X-User-Role") String role) {
         checkAdmin(role);
         return ResponseEntity.ok(userRepository.findAll());
     }
 
-    /** Promote a user to ADMIN or demote to CUSTOMER */
+    // Promotes a user to ADMIN or demotes them to CUSTOMER.
     @PutMapping("/{userId}/role")
     public ResponseEntity<Map<String, String>> changeRole(
             @RequestHeader("X-User-Role") String role,
@@ -67,7 +69,7 @@ public class AdminUserController {
         return ResponseEntity.ok(Map.of("message", "User role updated to " + newRole));
     }
 
-    /** Soft-delete: suspend a user (they cannot login but data is kept) */
+    // Suspends or reactivates a user's account login permissions.
     @PutMapping("/{userId}/suspend")
     public ResponseEntity<Map<String, String>> suspendUser(
             @RequestHeader("X-User-Role") String role,
@@ -83,7 +85,7 @@ public class AdminUserController {
         return ResponseEntity.ok(Map.of("message", "User account " + status + " successfully"));
     }
 
-    /** Hard-delete: permanently remove the user from the database */
+    // Permanently removes a user record from the database.
     @DeleteMapping("/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(
             @RequestHeader("X-User-Role") String role,

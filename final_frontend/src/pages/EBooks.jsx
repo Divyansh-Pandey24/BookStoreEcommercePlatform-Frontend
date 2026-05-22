@@ -66,7 +66,7 @@ const EBooks = () => {
               <div key={ebook.id} className="ebook-card">
                 <div className="ebook-image">
                   <img
-                    src={getImageUrl(ebook.coverImageUrl) || "https://via.placeholder.com/300x450?text=No+Cover"}
+                    src={getImageUrl(ebook.coverImageUrl) || "https:// via.placeholder.com/300x450?text=No+Cover"}
                     alt={ebook.title}
                   />
                 </div>

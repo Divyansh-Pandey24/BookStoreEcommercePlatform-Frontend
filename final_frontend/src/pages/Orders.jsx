@@ -82,7 +82,7 @@ function Orders() {
           <div className="orders-list">
             {orders.map(order => {
               const isOpen = expanded === order.orderId;
-              // ✅ FIXED: use order.orderStatus (not order.status)
+              // FIXED: use order.orderStatus (not order.status)
               const statusColor = STATUS_COLORS[order.orderStatus] || "#888";
               return (
                 <div key={order.orderId} className="order-card">
@@ -90,7 +90,7 @@ function Orders() {
                     <div className="order-header-left">
                       <span className="order-id">Order #{order.orderId}</span>
                       <span className="order-status" style={{ backgroundColor: statusColor }}>
-                        {/* ✅ FIXED: order.orderStatus */}
+                        {/* FIXED: order.orderStatus */}
                         {order.orderStatus}
                       </span>
                       <span className="pay-mode-badge">{order.paymentMode}</span>
@@ -98,7 +98,7 @@ function Orders() {
                     <div className="order-header-right">
                       <span className="order-amount">₹{order.totalAmount?.toFixed(2)}</span>
                       <span className="order-date">
-                        {/* ✅ FIXED: order.placedAt (not order.createdAt) */}
+                        {/* FIXED: order.placedAt (not order.createdAt) */}
                         {order.placedAt ? new Date(order.placedAt).toLocaleDateString("en-IN", {
                           day:"numeric", month:"short", year:"numeric"
                         }) : "—"}
@@ -109,10 +109,10 @@ function Orders() {
 
                   {isOpen && (
                     <div className="order-details">
-                      {/* ✅ FIXED: use order.orderStatus for tracker */}
+                      {/* FIXED: use order.orderStatus for tracker */}
                       <Tracker status={order.orderStatus} />
 
-                      {/* ✅ FIXED: items use order.items (not order.orderItems) */}
+                      {/* FIXED: items use order.items (not order.orderItems) */}
                       <div className="order-items">
                         {(order.items || []).map(item => (
                           <div key={item.orderItemId} className="order-item">
@@ -125,7 +125,7 @@ function Orders() {
                         ))}
                       </div>
 
-                      {/* ✅ FIXED: full delivery address with all 5 fields */}
+                      {/* FIXED: full delivery address with all 5 fields */}
                       <div className="order-address">
                         <p className="addr-header">📍 Delivery Details</p>
                         <p><strong>{order.deliveryName}</strong> · {order.deliveryMobile}</p>
@@ -138,7 +138,7 @@ function Orders() {
                         <span className="order-total-amount">₹{order.totalAmount?.toFixed(2)}</span>
                       </div>
 
-                      {/* ✅ FIXED: check order.orderStatus (not order.status) */}
+                      {/* FIXED: check order.orderStatus (not order.status) */}
                       {(order.orderStatus === "PLACED" || order.orderStatus === "CONFIRMED") && (
                         <button className="cancel-order-btn"
                           onClick={() => cancel(order.orderId)}

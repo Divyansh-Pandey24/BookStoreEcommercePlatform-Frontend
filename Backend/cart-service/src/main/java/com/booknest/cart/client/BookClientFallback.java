@@ -7,22 +7,20 @@ import org.springframework.stereotype.Component;
 
 // ============================================================
 // WHAT THIS CLASS DOES:
-//   This is the FALLBACK implementation for BookClient.
-//   When BOOK-SERVICE is DOWN or takes too long to respond,
-//   Resilience4j calls this class instead of hanging the caller.
-//
-//   HOW IT GETS ACTIVATED:
-//     1. BookClient.getBookById() fails 5 times in a row
-//     2. Circuit OPENS → Resilience4j stops calling BOOK-SERVICE
-//     3. Every call goes straight to this fallback instantly
-//     4. After 10 seconds (waitDurationInOpenState) Resilience4j
-//        tries one real call (HALF-OPEN). If it succeeds → CLOSED.
-//
-//   WHY return a stub instead of throwing?
-//     Cart browsing is NON-CRITICAL. A user can still see their
-//     cart even if book metadata is temporarily unavailable.
-//     Returning a "Service Unavailable" placeholder is better UX
-//     than a 500 error page.
+// This is the FALLBACK implementation for BookClient.
+// When BOOK-SERVICE is DOWN or takes too long to respond,
+// Resilience4j calls this class instead of hanging the caller.
+// // HOW IT GETS ACTIVATED:
+// 1. BookClient.getBookById() fails 5 times in a row
+// 2. Circuit OPENS Resilience4j stops calling BOOK-SERVICE
+// 3. Every call goes straight to this fallback instantly
+// 4. After 10 seconds (waitDurationInOpenState) Resilience4j
+// tries one real call (HALF-OPEN). If it succeeds CLOSED.
+// // WHY return a stub instead of throwing?
+// Cart browsing is NON-CRITICAL. A user can still see their
+// cart even if book metadata is temporarily unavailable.
+// Returning a "Service Unavailable" placeholder is better UX
+// than a 500 error page.
 // ============================================================
 @Component
 public class BookClientFallback implements BookClient {

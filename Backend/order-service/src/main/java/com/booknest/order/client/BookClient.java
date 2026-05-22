@@ -9,8 +9,8 @@ import com.booknest.order.dto.BookDto;
 
 // Feign client for book-service.
 // fallback = BookClientFallback.class: handles DOWN/OPEN circuit cases.
-// reserveStock() fallback returns false → order rejected (safe for inventory).
-// deductMoney() fallback throws → order rejected (safe for payments).
+// reserveStock() fallback returns false order rejected (safe for inventory).
+// deductMoney() fallback throws order rejected (safe for payments).
 @FeignClient(name = "BOOK-SERVICE", fallback = BookClientFallback.class)
 public interface BookClient {
 
